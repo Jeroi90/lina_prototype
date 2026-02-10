@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY Story</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0055B8',
+                            orange: '#F97316',
+                            teal: '#00B8A9',
+                            bg: '#F8F9FA',
+                            red: '#DC2626'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Slide Up Animation for Action Sheet */
+        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Fade Out for Deletion */
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        @keyframes fadeOut {
+            to { opacity: 0; height: 0; margin: 0; padding: 0; transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
+
+    <div class="w-full max-w-[480px] bg-white shadow-2xl relative flex flex-col min-h-screen">
+
+        <header class="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-gray-100 flex items-center justify-between px-4 h-14">
+            <button class="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full transition-colors" onclick="history.back()">
+                <i class="fas fa-arrow-left text-lg"></i>
+            </button>
+            <h1 class="text-[16px] font-bold text-gray-900">나의 이야기</h1>
+            <div class="w-10"></div> </header>
+
+        <main class="flex-1 bg-brand-bg pb-10">
+
+            <section class="bg-white px-5 py-6 mb-2 border-b border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" class="w-16 h-16 rounded-full border border-gray-100 bg-gray-50 object-cover">
+                        <button class="absolute bottom-0 right-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center border-2 border-white">
+                            <i class="fas fa-camera text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">박*윤 님</h2>
+                        <div class="flex gap-3 text-[12px] text-gray-500 mt-1">
+                            <span>작성글 <b class="text-brand-blue">5</b></span>
+                            <span class="w-px h-3 bg-gray-300 mt-1"></span>
+                            <span>받은 공감 <b class="text-brand-orange">248</b></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="px-5 py-4 space-y-4" id="my-feed-list">
+
+                <article id="post-1" class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm relative overflow-hidden group hover:border-orange-300 transition-all cursor-pointer" onclick="goToDetail('claim')">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-orange-50 text-brand-orange text-[10px] font-bold px-2 py-0.5 rounded border border-orange-100">
+                                <i class="fas fa-file-invoice-dollar"></i> 보상후기
+                            </span>
+                            <span class="text-[11px] text-gray-400">2024.12.15</span>
+                        </div>
+                        <button onclick="openActionSheet('post-1', event)" class="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-ellipsis-v text-sm"></i>
+                        </button>
+                    </div>
+
+                    <h3 class="font-bold text-gray-900 text-[15px] mb-2 leading-tight">임플란트 3개 300만원, 보험금으로 해결!</h3>
+                    <p class="text-gray-600 text-[13px] line-clamp-2 leading-relaxed">
+                        큰 돈 들어갈까봐 치과 가기 무서웠는데, 미리 들어둔 보험 덕분에 제 돈 거의 안 들었습니다. 청구 절차도 생각보다 너무 간단해서...
+                    </p>
+
+                    <div class="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
+                        <span class="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                            <i class="fas fa-gift text-gray-300"></i> (무)THE건강한치아보험V
+                        </span>
+                        <div class="flex gap-2 text-[11px] text-gray-400">
+                            <span><i class="far fa-heart"></i> 152</span>
+                            <span><i class="far fa-comment-dots"></i> 12</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article id="post-2" class="bg-white rounded-2xl p-5 border border-teal-100 shadow-sm relative overflow-hidden group hover:border-teal-300 transition-all cursor-pointer" onclick="goToDetail('lounge')">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-teal-50 text-brand-teal text-[10px] font-bold px-2 py-0.5 rounded border border-teal-100">
+                                <i class="fas fa-comments"></i> 고민상담
+                            </span>
+                            <span class="text-[11px] text-gray-400">3시간 전</span>
+                        </div>
+                        <button onclick="openActionSheet('post-2', event)" class="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-ellipsis-v text-sm"></i>
+                        </button>
+                    </div>
+
+                    <h3 class="font-bold text-gray-900 text-[15px] mb-2 leading-tight">은퇴한 남편과 24시간, 숨 막혀요</h3>
+                    <p class="text-gray-600 text-[13px] line-clamp-2 leading-relaxed">
+                        삼시 세끼 밥 차려주는 건 기본이고, 제가 친구 좀 만나러 나가려 하면...
+                    </p>
+
+                    <div class="mt-3 pt-3 border-t border-gray-50 flex items-center justify-end gap-2 text-[11px] text-gray-400">
+                        <span><i class="far fa-heart"></i> 45</span>
+                        <span><i class="far fa-comment-dots"></i> 8</span>
+                    </div>
+                </article>
+
+                <article id="post-3" class="bg-white rounded-2xl p-5 border border-blue-100 shadow-sm relative overflow-hidden group hover:border-blue-300 transition-all cursor-pointer" onclick="goToDetail('product')">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-50 text-brand-blue text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">
+                                <i class="fas fa-shield-halved"></i> 상품리뷰
+                            </span>
+                            <span class="text-[11px] text-gray-400">2024.05.10</span>
+                        </div>
+                        <button onclick="openActionSheet('post-3', event)" class="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-ellipsis-v text-sm"></i>
+                        </button>
+                    </div>
+
+                    <h3 class="font-bold text-gray-900 text-[15px] mb-2 leading-tight">사회초년생 첫 암보험, 가성비 최고네요</h3>
+                    <div class="flex gap-1 mb-2">
+                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">#가성비</span>
+                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">#브랜드신뢰</span>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
+                        <span class="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                            <i class="fas fa-gift text-gray-300"></i> (무)라이나암보험
+                        </span>
+                        <div class="flex gap-2 text-[11px] text-gray-400">
+                            <span><i class="far fa-heart"></i> 32</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article id="post-4" class="bg-gray-50 rounded-2xl p-5 border border-gray-200 shadow-sm relative overflow-hidden group cursor-default">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded border border-gray-300">
+                                <i class="fas fa-lock"></i> 심사중
+                            </span>
+                            <span class="text-[11px] text-gray-400">10분 전</span>
+                        </div>
+                        <button onclick="openActionSheet('post-4', event)" class="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-ellipsis-v text-sm"></i>
+                        </button>
+                    </div>
+
+                    <h3 class="font-bold text-gray-500 text-[15px] mb-2 leading-tight">보험금 지급이 너무 늦어져서...</h3>
+                    <p class="text-gray-400 text-[13px] line-clamp-2 leading-relaxed">
+                        담당자 확인 중인 글입니다. (본인만 확인 가능)
+                    </p>
+                    
+                    <div class="mt-3 bg-white p-2 rounded-lg border border-gray-200 flex items-start gap-2">
+                        <i class="fas fa-headset text-brand-blue text-xs mt-0.5"></i>
+                        <p class="text-[11px] text-gray-600 leading-snug">
+                            고객님, 불편을 드려 죄송합니다. 담당자가 내용을 확인하고 있습니다.
+                        </p>
+                    </div>
+                </article>
+
+            </section>
+
+            <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300 text-3xl">
+                    <i class="fas fa-pen-nib"></i>
+                </div>
+                <p class="text-gray-800 font-bold text-lg mb-1">작성한 글이 없어요</p>
+                <p class="text-gray-400 text-sm mb-6">첫 번째 이야기를 들려주시겠어요?</p>
+                <button class="bg-brand-blue text-white px-6 py-3 rounded-full font-bold text-sm shadow-md hover:bg-[#003E85] transition-colors">
+                    이야기 쓰러 가기
+                </button>
+            </div>
+
+        </main>
+
+        <div id="action-sheet" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/40 transition-opacity" onclick="closeActionSheet()"></div>
+            
+            <div class="absolute bottom-0 w-full bg-white rounded-t-2
