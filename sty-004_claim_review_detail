@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보상후기 상세</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0055B8',
+                            orange: '#F97316',
+                            text: '#111827',
+                            bg: '#F8F9FA',
+                            gray: '#E5E7EB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Like Button Animation */
+        .like-active {
+            background-color: #FFF7ED !important;
+            border-color: #F97316 !important;
+            color: #F97316 !important;
+        }
+        .like-icon-active {
+            font-weight: 900 !important; /* solid icon */
+            animation: pop 0.3s ease;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
+
+    <div class="w-full max-w-[480px] bg-white shadow-2xl relative flex flex-col min-h-screen">
+
+        <header class="sticky top-0 bg-white/95 backdrop-blur-md z-20 border-b border-gray-100 flex items-center justify-between px-4 h-14">
+            <button class="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full transition-colors" onclick="history.back()">
+                <i class="fas fa-arrow-left text-lg"></i>
+            </button>
+            <h1 class="text-[16px] font-bold text-gray-900">회복 이야기</h1>
+            <button class="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full transition-colors">
+                <i class="fas fa-share-nodes text-lg"></i>
+            </button>
+        </header>
+
+        <main class="overflow-y-auto pb-32">
+
+            <section class="px-5 pt-6 pb-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-[14px] font-bold text-gray-900">박*윤 님</h2>
+                                <span class="text-[11px] text-gray-400">· 30대 남성</span>
+                            </div>
+                            <span class="text-[11px] text-gray-400">2024.12.12 작성</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <div class="flex text-yellow-400 text-sm gap-0.5">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <span class="text-[11px] text-gray-400 mt-0.5">매우 만족</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="px-5 mb-6">
+                <div class="bg-brand-bg rounded-xl p-4 border border-gray-100 flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-brand-orange flex-shrink-0 shadow-sm">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] text-gray-500 font-bold block mb-0.5">지급 항목</span>
+                        <h3 class="font-bold text-gray-900 text-[14px] mb-1">치주질환(잇몸) 치료 급여금</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-50 text-brand-blue text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100 flex items-center">
+                                <i class="fas fa-bolt mr-1"></i>24시간 내 지급
+                            </span>
+                            <span class="text-[10px] text-gray-400">지급일 24.12.10</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="px-5 mb-6">
+                <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-brand-orange text-[12px] font-bold border border-orange-100">
+                        💸 치료비 부담 해결
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-brand-orange text-[12px] font-bold border border-orange-100">
+                        💊 약값/검사비 활용
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 text-[12px] font-bold border border-teal-100">
+                        🏥 수술/시술 완료
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 text-[12px] font-bold border border-teal-100">
+                        💪 건강하게 회복 완료
+                    </span>
+                </div>
+            </section>
+
+            <div class="h-px bg-gray-100 mx-5 mb-6"></div>
+
+            <section class="px-5 text-[15px] text-gray-800 leading-[1.7] space-y-8 fade-in">
+                <div>
+                    <h4 class="font-bold text-gray-900 text-[16px] mb-2 flex items-center gap-2">
+                        <i class="fas fa-stethoscope text-orange-400 text-sm"></i> 처음에는 이랬어요
+                    </h4>
+                    <p class="text-gray-600 bg-white">
+                        양치할 때마다 잇몸에서 피가 나고 붓기가 심해서 치과를 가게 되었습니다. 처음엔 대수롭지 않게 여겼는데, 진단 결과 잇몸 염증이 심해 수술이 필요하다는 이야기를 듣고 덜컥 겁이 났습니다.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 text-[16px] mb-2 flex items-center gap-2">
+                        <i class="fas fa-user-nurse text-orange-400 text-sm"></i> 치료 과정은요
+                    </h4>
+                    <p class="text-gray-600 bg-white">
+                        잇몸 절개 수술을 받고 약 3주간 통원 치료를 꾸준히 받았습니다. 다행히 수술 경과가 좋아서 지금은 통증도 사라지고 식사도 편하게 잘 하고 있습니다. 건강해진 느낌이라 너무 좋아요.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 text-[16px] mb-2 flex items-center gap-2">
+                        <i class="fas fa-hand-holding-heart text-orange-400 text-sm"></i> 보험금이 큰 힘이 됐어요
+                    </h4>
+                    <p class="text-gray-600 bg-white">
+                        치과 치료비는 비급여 항목이 많아 비용 부담이 컸는데, 청구한 다음 날 바로 입금되어서 정말 놀랐습니다. 덕분에 치료비 걱정 없이 치료에만 전념할 수 있었어요. 빠른 처리에 감사드립니다.
+                    </p>
+                </div>
+                <div class="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                    <h4 class="font-bold text-brand-orange text-[14px] mb-2 flex items-center gap-2">
+                        <i class="fas fa-comment-medical"></i> 라이나 가족들에게
+                    </h4>
+                    <p class="text-gray-700 font-medium">
+                        "치아는 아플 때 바로 가야 합니다. 비용 걱정 때문에 미루지 마시고, 든든한 보험 믿고 얼른 치료받으세요! 건강이 최고입니다."
+                    </p>
+                </div>
+            </section>
+
+            <section class="px-5 py-8 pb-4 flex justify-center">
+                <button id="like-btn" onclick="toggleLike()" class="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 bg-white text-gray-500 font-bold text-[14px] transition-all hover:bg-gray-50 active:scale-95 shadow-sm">
+                    <i id="like-icon" class="far fa-heart text-lg transition-transform"></i>
+                    도움이 되었어요 <span id="like-count">12</span>
+                </button>
+            </section>
+
+            <section class="px-5 mt-4 mb-6">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-teal-50 text-teal-600 text-[9px] font-bold px-3 py-1 rounded-bl-lg border-l border-b border-teal-100">
+                        다녀온 병원
+                    </div>
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 text-xl flex-shrink-0">
+                            <i class="fas fa-hospital-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-[15px]">신촌세브란스병원</h4>
+                            <div class="flex items-center gap-1 text-[11px] text-gray-500 mt-0.5">
+                                <span>서울 서대문구</span>
+                                <span class="w-px h-2 bg-gray-300 mx-1"></span>
+                                <span class="text-teal-600 font-bold"><i class="fas fa-bolt mr-1"></i>서류제로 병원</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 mb-3">
+                        <div class="flex text-yellow-400 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <span class="text-[11px] font-bold text-gray-800 ml-1">5.0</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg text-[12px] text-gray-600 leading-snug">
+                        "대기 시간은 좀 길었지만 의료진분들이 너무 친절하게 설명해 주셔서 안심이 되었습니다."
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <div class="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100 p-4 pb-8 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <div class="flex justify-center -mt-7 mb-2">
+                <span class="bg-gray-800 text-white text-[10px] px-3 py-1 rounded-full shadow-lg opacity-90 animate-bounce">
+                    이 고객님이 가입한 상품은? 👇
+                </span>
+            </div>
+            
+            <button onclick="goToProduct()" class="w-full py-4 rounded-xl bg-brand-orange text-white font-bold text-[16px] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                <i class="fas fa-shield-halved"></i> 이 고객이 가입한 상품 확인하기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let isLiked = false;
+        let likeCount = 12;
+
+        function toggleLike() {
+            isLiked = !isLiked;
+            const btn = document.getElementById('like-btn');
+            const icon = document.getElementById('like-icon');
+            const countSpan = document.getElementById('like-count');
+
+            if (isLiked) {
+                // Active State
+                btn.classList.add('like-active');
+                icon.classList.remove('far'); // regular
+                icon.classList.add('fas', 'like-icon-active'); // solid
+                likeCount++;
+            } else {
+                // Inactive State
+                btn.classList.remove('like-active');
+                icon.classList.remove('fas', 'like-icon-active');
+                icon.classList.add('far');
+                likeCount--;
+            }
+            countSpan.innerText = likeCount;
+        }
+
+        function goToProduct() {
+            alert("상품 상세 페이지로 이동합니다.\n상품명: (무)THE건강한치아보험V");
+        }
+    </script>
+</body>
+</html>
