@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이나On 밸런스 게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            teal: '#00B8A9',
+                            tealLight: '#E6FFFA',
+                            orange: '#F97316',
+                            orangeLight: '#FFF7ED',
+                            dark: '#111827',
+                            bg: '#F8F9FA'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .flipped .flip-card-inner { transform: rotateY(180deg); }
+        .snap-x-mandatory { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
+        .bar-fill { transition: width 1s ease-out; width: 0%; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800 overflow-hidden">
+
+    <div class="w-full max-w-[480px] bg-white shadow-2xl relative flex flex-col h-screen">
+
+        <header class="flex-shrink-0 bg-white z-30 border-b border-gray-100 flex items-center justify-between px-4 h-14">
+            <button class="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full" onclick="history.back()">
+                <i class="fas fa-arrow-left text-lg"></i>
+            </button>
+            <h1 class="text-[16px] font-bold text-gray-900">밸런스 게임</h1>
+            <button class="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full">
+                <i class="fas fa-share-nodes text-lg"></i>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar bg-brand-bg relative flex flex-col">
+            
+            <div class="px-5 pt-6 pb-2 text-center flex-shrink-0">
+                <span class="inline-flex items-center px-3 py-1 bg-gray-900 text-white text-[11px] font-bold rounded-full mb-2">
+                    <i class="fas fa-check-double text-brand-teal mr-1"></i> 나의 속마음 알아보기
+                </span>
+            </div>
+
+            <section class="relative w-full py-4 overflow-hidden flex-shrink-0">
+                <div id="card-slider" class="flex gap-4 overflow-x-auto px-8 pb-8 pt-2 snap-x-mandatory no-scrollbar" onscroll="handleScroll()">
+                    
+                    <div class="card-wrapper w-full min-w-[300px] max-w-[340px] h-[480px] snap-center perspective-1000 group" id="card-1">
+                        <div class="flip-card-inner relative w-full h-full text-center transition-all duration-500 transform-style-3d shadow-xl rounded-3xl bg-white">
+                            <div class="absolute w-full h-full backface-hidden rounded-3xl overflow-hidden bg-white flex flex-col border border-gray-100">
+                                <div class="h-1/2 bg-gray-50 relative">
+                                    <img src="https://images.unsplash.com/photo-1554672408-730436b60dde?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-90">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-6">
+                                        <h2 class="text-white text-2xl font-black px-4 leading-tight drop-shadow-md">남은 노후 자산,<br>어떻게 할까?</h2>
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-[10px] font-bold border border-white/30">Q1. 자산관리</div>
+                                </div>
+                                <div class="h-1/2 p-5 flex flex-col gap-3 justify-center bg-white">
+                                    <button onclick="vote('card-1', 'A')" class="flex-1 bg-brand-tealLight border-2 border-transparent hover:border-brand-teal rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-teal text-lg text-left">A. 자식에게<br>물려준다</span>
+                                        <i class="far fa-circle text-brand-teal text-xl"></i>
+                                    </button>
+                                    <div class="text-center text-gray-300 font-black text-sm my-[-5px]">VS</div>
+                                    <button onclick="vote('card-1', 'B')" class="flex-1 bg-brand-orangeLight border-2 border-transparent hover:border-brand-orange rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-orange text-lg text-left">B. 나를 위해<br>다 쓰고 간다</span>
+                                        <i class="far fa-circle text-brand-orange text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl overflow-hidden bg-white border border-gray-100 flex flex-col">
+                                <div class="bg-gray-50 p-6 pb-4 border-b border-gray-100">
+                                    <h3 class="font-bold text-gray-900 text-lg mb-4 text-left">투표 결과 <span class="text-xs font-normal text-gray-500 ml-1">4,210명 참여</span></h3>
+                                    <div class="space-y-4">
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-teal">상속한다</span><span class="text-gray-800">32%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-teal h-3 rounded-full bar-fill" style="width:0%" data-width="32%"></div></div></div>
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-orange">다 쓴다 (Die with Zero)</span><span class="text-gray-800">68%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-orange h-3 rounded-full bar-fill" style="width:0%" data-width="68%"></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-5 bg-white flex flex-col">
+                                    <textarea id="comment-input-1" class="w-full flex-1 bg-gray-50 rounded-xl p-3 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 resize-none mb-3" placeholder="자녀에 대한 솔직한 생각은?"></textarea>
+                                    <button onclick="submitComment('card-1')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800">의견 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-wrapper w-full min-w-[300px] max-w-[340px] h-[480px] snap-center perspective-1000 group" id="card-2">
+                        <div class="flip-card-inner relative w-full h-full text-center transition-all duration-500 transform-style-3d shadow-xl rounded-3xl bg-white">
+                            <div class="absolute w-full h-full backface-hidden rounded-3xl overflow-hidden bg-white flex flex-col border border-gray-100">
+                                <div class="h-1/2 bg-gray-50 relative">
+                                    <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-90">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-6">
+                                        <h2 class="text-white text-2xl font-black px-4 leading-tight drop-shadow-md">이상적인<br>노후 주거지는?</h2>
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-[10px] font-bold border border-white/30">Q2. 주거형태</div>
+                                </div>
+                                <div class="h-1/2 p-5 flex flex-col gap-3 justify-center bg-white">
+                                    <button onclick="vote('card-2', 'A')" class="flex-1 bg-brand-tealLight border-2 border-transparent hover:border-brand-teal rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-teal text-lg text-left">A. 자녀 집 근처<br><span class="text-sm font-normal">(손주 육아 도움)</span></span>
+                                        <i class="far fa-circle text-brand-teal text-xl"></i>
+                                    </button>
+                                    <div class="text-center text-gray-300 font-black text-sm my-[-5px]">VS</div>
+                                    <button onclick="vote('card-2', 'B')" class="flex-1 bg-brand-orangeLight border-2 border-transparent hover:border-brand-orange rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-orange text-lg text-left">B. 고급 실버타운<br><span class="text-sm font-normal">(완벽한 독립)</span></span>
+                                        <i class="far fa-circle text-brand-orange text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl overflow-hidden bg-white border border-gray-100 flex flex-col">
+                                <div class="bg-gray-50 p-6 pb-4 border-b border-gray-100">
+                                    <h3 class="font-bold text-gray-900 text-lg mb-4 text-left">투표 결과</h3>
+                                    <div class="space-y-4">
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-teal">자녀 근처</span><span class="text-gray-800">21%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-teal h-3 rounded-full bar-fill" style="width:0%" data-width="21%"></div></div></div>
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-orange">실버타운</span><span class="text-gray-800">79%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-orange h-3 rounded-full bar-fill" style="width:0%" data-width="79%"></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-5 bg-white flex flex-col">
+                                    <textarea id="comment-input-2" class="w-full flex-1 bg-gray-50 rounded-xl p-3 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 resize-none mb-3" placeholder="독립인가요 유대감인가요?"></textarea>
+                                    <button onclick="submitComment('card-2')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800">의견 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-wrapper w-full min-w-[300px] max-w-[340px] h-[480px] snap-center perspective-1000 group" id="card-3">
+                        <div class="flip-card-inner relative w-full h-full text-center transition-all duration-500 transform-style-3d shadow-xl rounded-3xl bg-white">
+                            <div class="absolute w-full h-full backface-hidden rounded-3xl overflow-hidden bg-white flex flex-col border border-gray-100">
+                                <div class="h-1/2 bg-gray-50 relative">
+                                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-90">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-6">
+                                        <h2 class="text-white text-2xl font-black px-4 leading-tight drop-shadow-md">식단과 수명,<br>당신의 선택은?</h2>
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-[10px] font-bold border border-white/30">Q3. 건강관리</div>
+                                </div>
+                                <div class="h-1/2 p-5 flex flex-col gap-3 justify-center bg-white">
+                                    <button onclick="vote('card-3', 'A')" class="flex-1 bg-brand-tealLight border-2 border-transparent hover:border-brand-teal rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-teal text-lg text-left">A. 맛집 즐기며<br>짧고 굵게</span>
+                                        <i class="far fa-circle text-brand-teal text-xl"></i>
+                                    </button>
+                                    <div class="text-center text-gray-300 font-black text-sm my-[-5px]">VS</div>
+                                    <button onclick="vote('card-3', 'B')" class="flex-1 bg-brand-orangeLight border-2 border-transparent hover:border-brand-orange rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-orange text-lg text-left">B. 철저한 관리로<br>가늘고 길게</span>
+                                        <i class="far fa-circle text-brand-orange text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl overflow-hidden bg-white border border-gray-100 flex flex-col">
+                                <div class="bg-gray-50 p-6 pb-4 border-b border-gray-100">
+                                    <h3 class="font-bold text-gray-900 text-lg mb-4 text-left">투표 결과</h3>
+                                    <div class="space-y-4">
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-teal">짧고 굵게</span><span class="text-gray-800">45%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-teal h-3 rounded-full bar-fill" style="width:0%" data-width="45%"></div></div></div>
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-orange">가늘고 길게</span><span class="text-gray-800">55%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-orange h-3 rounded-full bar-fill" style="width:0%" data-width="55%"></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-5 bg-white flex flex-col">
+                                    <textarea id="comment-input-3" class="w-full flex-1 bg-gray-50 rounded-xl p-3 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 resize-none mb-3" placeholder="먹는 즐거움 vs 건강한 장수?"></textarea>
+                                    <button onclick="submitComment('card-3')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800">의견 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-wrapper w-full min-w-[300px] max-w-[340px] h-[480px] snap-center perspective-1000 group" id="card-4">
+                        <div class="flip-card-inner relative w-full h-full text-center transition-all duration-500 transform-style-3d shadow-xl rounded-3xl bg-white">
+                            <div class="absolute w-full h-full backface-hidden rounded-3xl overflow-hidden bg-white flex flex-col border border-gray-100">
+                                <div class="h-1/2 bg-gray-50 relative">
+                                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-90">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-6">
+                                        <h2 class="text-white text-2xl font-black px-4 leading-tight drop-shadow-md">더 필요한<br>인간관계는?</h2>
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-[10px] font-bold border border-white/30">Q4. 인간관계</div>
+                                </div>
+                                <div class="h-1/2 p-5 flex flex-col gap-3 justify-center bg-white">
+                                    <button onclick="vote('card-4', 'A')" class="flex-1 bg-brand-tealLight border-2 border-transparent hover:border-brand-teal rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-teal text-lg text-left">A. 가끔 보는<br>친구 10명</span>
+                                        <i class="far fa-circle text-brand-teal text-xl"></i>
+                                    </button>
+                                    <div class="text-center text-gray-300 font-black text-sm my-[-5px]">VS</div>
+                                    <button onclick="vote('card-4', 'B')" class="flex-1 bg-brand-orangeLight border-2 border-transparent hover:border-brand-orange rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-orange text-lg text-left">B. 매일 연락하는<br>친구 1명</span>
+                                        <i class="far fa-circle text-brand-orange text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl overflow-hidden bg-white border border-gray-100 flex flex-col">
+                                <div class="bg-gray-50 p-6 pb-4 border-b border-gray-100">
+                                    <h3 class="font-bold text-gray-900 text-lg mb-4 text-left">투표 결과</h3>
+                                    <div class="space-y-4">
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-teal">친구 10명</span><span class="text-gray-800">40%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-teal h-3 rounded-full bar-fill" style="width:0%" data-width="40%"></div></div></div>
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-orange">친구 1명</span><span class="text-gray-800">60%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-orange h-3 rounded-full bar-fill" style="width:0%" data-width="60%"></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-5 bg-white flex flex-col">
+                                    <textarea id="comment-input-4" class="w-full flex-1 bg-gray-50 rounded-xl p-3 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 resize-none mb-3" placeholder="외로움에 대한 당신의 생각은?"></textarea>
+                                    <button onclick="submitComment('card-4')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800">의견 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-wrapper w-full min-w-[300px] max-w-[340px] h-[480px] snap-center perspective-1000 group" id="card-5">
+                        <div class="flip-card-inner relative w-full h-full text-center transition-all duration-500 transform-style-3d shadow-xl rounded-3xl bg-white">
+                            <div class="absolute w-full h-full backface-hidden rounded-3xl overflow-hidden bg-white flex flex-col border border-gray-100">
+                                <div class="h-1/2 bg-gray-50 relative">
+                                    <img src="https://images.unsplash.com/photo-1501139083538-0139583c61ee?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-90">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-6">
+                                        <h2 class="text-white text-2xl font-black px-4 leading-tight drop-shadow-md">단 한 번의<br>기회가 온다면?</h2>
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-[10px] font-bold border border-white/30">Q5. 인생기회</div>
+                                </div>
+                                <div class="h-1/2 p-5 flex flex-col gap-3 justify-center bg-white">
+                                    <button onclick="vote('card-5', 'A')" class="flex-1 bg-brand-tealLight border-2 border-transparent hover:border-brand-teal rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-teal text-lg text-left">A. 기억 가지고<br>20대로 회귀</span>
+                                        <i class="far fa-circle text-brand-teal text-xl"></i>
+                                    </button>
+                                    <div class="text-center text-gray-300 font-black text-sm my-[-5px]">VS</div>
+                                    <button onclick="vote('card-5', 'B')" class="flex-1 bg-brand-orangeLight border-2 border-transparent hover:border-brand-orange rounded-xl flex items-center justify-between px-5 transition-all">
+                                        <span class="font-bold text-brand-orange text-lg text-left">B. 현금 10억 받고<br>현재 유지</span>
+                                        <i class="far fa-circle text-brand-orange text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl overflow-hidden bg-white border border-gray-100 flex flex-col">
+                                <div class="bg-gray-50 p-6 pb-4 border-b border-gray-100">
+                                    <h3 class="font-bold text-gray-900 text-lg mb-4 text-left">투표 결과</h3>
+                                    <div class="space-y-4">
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-teal">20대 회귀</span><span class="text-gray-800">51%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-teal h-3 rounded-full bar-fill" style="width:0%" data-width="51%"></div></div></div>
+                                        <div><div class="flex justify-between text-xs font-bold mb-1"><span class="text-brand-orange">10억 받고 현재</span><span class="text-gray-800">49%</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-brand-orange h-3 rounded-full bar-fill" style="width:0%" data-width="49%"></div></div></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-5 bg-white flex flex-col">
+                                    <textarea id="comment-input-5" class="w-full flex-1 bg-gray-50 rounded-xl p-3 text-sm border border-gray-200 focus:outline-none focus:border-gray-900 resize-none mb-3" placeholder="젊음인가요, 안정된 현재인가요?"></textarea>
+                                    <button onclick="submitComment('card-5')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800">의견 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex justify-center gap-1.5 mt-[-10px]" id="indicators">
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-800 indicator"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 indicator"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 indicator"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 indicator"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 indicator"></div>
+                </div>
+            </section>
+
+            <section class="px-5 pb-8 flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pt-2">
+                    <div class="flex gap-2 text-xs text-gray-400 items-center">
+                        <button onclick="setSort('latest')" id="sort-latest" class="font-bold text-gray-900 transition-colors hover:text-gray-600">최신순</button>
+                        <span class="text-[10px] text-gray-300">|</span>
+                        <button onclick="setSort('popular')" id="sort-popular" class="font-normal text-gray-400 transition-colors hover:text-gray-600">인기순</button>
+                    </div>
+                    
+                    <div class="flex gap-1.5">
+                        <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-900 text-white shadow-sm transition-all border border-gray-900">전체</button>
+                        <button onclick="setFilter('A')" id="filter-A" class="px-3 py-1.5 rounded-full text-[11px] font-medium bg-white text-gray-500 border border-gray-200 shadow-sm transition-all hover:border-brand-teal hover:text-brand-teal">A 선택</button>
+                        <button onclick="setFilter('B')" id="filter-B" class="px-3 py-1.5 rounded-full text-[11px] font-medium bg-white text-gray-500 border border-gray-200 shadow-sm transition-all hover:border-brand-orange hover:text-brand-orange">B 선택</button>
+                    </div>
+                </div>
+
+                <div id="comment-list" class="space-y-3 pb-8 overflow-y-visible">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 목업 데이터 (likes 수치 조정으로 인기순 정렬 테스트 가능)
+        const commentsData = {
+            'card-1': [ // 상속
+                { name: '김*수', time: '10분 전', type: 'B', text: '자식 농사 다 지었으면 이제 제 인생 살아야죠. Die with zero가 목표입니다.', likes: 124 },
+                { name: '이*영', time: '1시간 전', type: 'A', text: '그래도 대한민국 부모 마음이 어떻게 그래요.. 집 한 채는 해줘야죠.', likes: 89 },
+                { name: '최*철', time: '3시간 전', type: 'B', text: '나중에 병원비 하려면 내가 쥐고 있어야 대접받아요.', likes: 210 }
+            ],
+            'card-2': [ // 주거
+                { name: '박*호', time: '5분 전', type: 'B', text: '손주 봐줘 봤자 몸만 상해요. 내 돈 내고 편하게 살렵니다.', likes: 55 },
+                { name: '최*자', time: '20분 전', type: 'A', text: '나이 들면 가족 곁이 최고예요. 적적해서 어떻게 혼자 살아요.', likes: 42 }
+            ],
+            'card-3': [ // 건강
+                { name: '정*민', time: '30분 전', type: 'A', text: '어차피 100세 시대, 맛있는 거 못 먹고 사느니 즐겁게 살다 갈래요.', likes: 33 },
+                { name: '강*우', time: '1시간 전', type: 'B', text: '아파서 자식들 고생시키기 싫으면 관리해야 합니다.', likes: 102 }
+            ],
+            'card-4': [ // 친구
+                { name: '임*숙', time: '방금 전', type: 'B', text: '나이 드니 친구들 다 떠나고.. 마음 터놓을 한 명이면 충분하더군요.', likes: 21 },
+                { name: '한*구', time: '40분 전', type: 'A', text: '그래도 모임 나가서 왁자지껄 떠드는 게 활력소죠!', likes: 15 }
+            ],
+            'card-5': [ // 회귀
+                { name: '오*철', time: '10분 전', type: 'A', text: '10억이 대수입니까? 20대 체력으로 돌아간다면 뭐든 다시 할 수 있어요.', likes: 230 },
+                { name: '조*희', time: '2시간 전', type: 'B', text: '그 치열한 경쟁 다시 할 자신 없어요. 그냥 지금 편하게 살래요.', likes: 145 }
+            ]
+        };
+
+        // 상태 변수 (현재 활성 카드, 정렬, 필터)
+        let currentCardId = 'card-1';
+        let sortMode = 'latest'; // 'latest' | 'popular'
+        let filterMode = 'all';  // 'all' | 'A' | 'B'
+
+        function vote(cardId, selection) {
+            const card = document.getElementById(cardId);
+            if (card.classList.contains('flipped')) return;
+            card.classList.add('flipped');
+            setTimeout(() => {
+                const bars = card.querySelectorAll('.bar-fill');
+                bars.forEach(bar => bar.style.width = bar.dataset.width);
+            }, 300);
+        }
+
+        function submitComment(cardId) {
+            const input = document.getElementById(`comment-input-${cardId.split('-')[1]}`);
+            if (!input.value.trim()) return alert('내용을 입력해주세요.');
+            
+            // 새 댓글 추가 (최신순이므로 맨 앞)
+            commentsData[cardId].unshift({
+                name: '나', time: '방금 전', type: 'B', text: input.value, likes: 0, isNew: true
+            });
+            input.value = '';
+            
+            // 만약 현재 인기순 정렬 중이라면 최신순으로 강제 변경하여 내 글 확인 유도
+            if(sortMode === 'popular') {
+                setSort('latest');
+            } else {
+                renderComments(currentCardId);
+            }
+        }
+
+        // 정렬 모드 변경
+        function setSort(mode) {
+            sortMode = mode;
+            updateControlUI();
+            renderComments(currentCardId);
+        }
+
+        // 필터 모드 변경
+        function setFilter(mode) {
+            filterMode = mode;
+            updateControlUI();
+            renderComments(currentCardId);
+        }
+
+        // UI 컨트롤 버튼 스타일 업데이트
+        function updateControlUI() {
+            // 정렬 버튼 스타일
+            const latestBtn = document.getElementById('sort-latest');
+            const popularBtn = document.getElementById('sort-popular');
+            
+            if (sortMode === 'latest') {
+                latestBtn.className = 'font-bold text-gray-900 transition-colors hover:text-gray-600';
+                popularBtn.className = 'font-normal text-gray-400 transition-colors hover:text-gray-600';
+            } else {
+                latestBtn.className = 'font-normal text-gray-400 transition-colors hover:text-gray-600';
+                popularBtn.className = 'font-bold text-gray-900 transition-colors hover:text-gray-600';
+            }
+
+            // 필터 버튼 스타일 Reset
+            const btns = {
+                all: document.getElementById('filter-all'),
+                A: document.getElementById('filter-A'),
+                B: document.getElementById('filter-B')
+            };
+
+            // 기본 스타일 (비활성)
+            Object.values(btns).forEach(btn => {
+                btn.className = 'px-3 py-1.5 rounded-full text-[11px] font-medium bg-white text-gray-500 border border-gray-200 shadow-sm transition-all hover:bg-gray-50';
+            });
+
+            // 활성 스타일 적용
+            if (filterMode === 'all') {
+                btns.all.className = 'px-3 py-1.5 rounded-full text-[11px] font-bold bg-gray-900 text-white shadow-sm transition-all border border-gray-900';
+            } else if (filterMode === 'A') {
+                btns.A.className = 'px-3 py-1.5 rounded-full text-[11px] font-bold bg-brand-teal text-white border border-brand-teal shadow-sm transition-all';
+            } else if (filterMode === 'B') {
+                btns.B.className = 'px-3 py-1.5 rounded-full text-[11px] font-bold bg-brand-orange text-white border border-brand-orange shadow-sm transition-all';
+            }
+        }
+
+        function renderComments(cardId) {
+            const container = document.getElementById('comment-list');
+            let list = [...(commentsData[cardId] || [])]; // 원본 보존을 위해 복사
+
+            // 1. 필터링
+            if (filterMode !== 'all') {
+                list = list.filter(item => item.type === filterMode);
+            }
+
+            // 2. 정렬
+            if (sortMode === 'popular') {
+                list.sort((a, b) => b.likes - a.likes);
+            } else {
+                // 최신순 (기본 데이터가 최신순이라고 가정)
+                // 만약 데이터 순서가 섞여있다면 timestamp 비교 로직 필요
+            }
+
+            // 3. 렌더링
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm">해당하는 의견이 없습니다.</div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-3 ${item.isNew ? 'fade-in' : ''}">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                         <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=${item.name}" alt="avatar">
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-bold text-gray-900">${item.name}</span>
+                            <span class="text-[10px] text-gray-400">${item.time}</span>
+                        </div>
+                        <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold border mb-1.5 ${item.type === 'A' ? 'text-brand-teal bg-teal-50 border-teal-100' : 'text-brand-orange bg-orange-50 border-orange-100'}">${item.type === 'A' ? 'A 선택' : 'B 선택'}</span>
+                        <p class="text-sm text-gray-700 leading-relaxed">${item.text}</p>
+                        <div class="mt-2 flex items-center text-xs text-gray-400 gap-3">
+                            <button class="flex items-center gap-1 hover:text-red-500 transition-colors"><i class="far fa-heart"></i> ${item.likes}</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleScroll() {
+            const slider = document.getElementById('card-slider');
+            const index = Math.round(slider.scrollLeft / slider.querySelector('.card-wrapper').offsetWidth);
+            const newCardId = `card-${index + 1}`;
+            
+            // 인디케이터 업데이트
+            document.querySelectorAll('.indicator').forEach((ind, i) => {
+                ind.className = `w-1.5 h-1.5 rounded-full indicator ${i === index ? 'bg-gray-800' : 'bg-gray-300'}`;
+            });
+            
+            // 카드가 변경되었을 때만 실행
+            if (currentCardId !== newCardId) {
+                currentCardId = newCardId;
+                
+                // UX: 카드가 바뀌면 정렬과 필터를 초기화 (새로운 주제이므로)
+                sortMode = 'latest';
+                filterMode = 'all';
+                updateControlUI();
+                
+                renderComments(currentCardId);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderComments('card-1');
+        });
+    </script>
+</body>
+</html>
