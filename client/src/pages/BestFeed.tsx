@@ -1,4 +1,5 @@
-import { getFeedData, type FeedItem } from "@/lib/feedData";
+import { type FeedItem } from "@/lib/feedData";
+import { useFeedItems } from "@/hooks/use-feed";
 
 interface BestFeedProps {
   onBack: () => void;
@@ -6,7 +7,9 @@ interface BestFeedProps {
 }
 
 export default function BestFeed({ onBack, onDetail }: BestFeedProps) {
-  const bestItems = getFeedData()
+  const { data: feedData = [] } = useFeedItems();
+
+  const bestItems = feedData
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice()
     .sort((a, b) => b.likes - a.likes)

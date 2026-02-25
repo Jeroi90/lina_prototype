@@ -1,37 +1,84 @@
 import { useState } from "react";
-import { type FeedItem } from "@/lib/feedData";
+import { useFeedItem, useLikeFeedItem, useFeedComments, useAddFeedComment } from "@/hooks/use-feed";
+import type { FeedCommentAPI } from "@/hooks/use-feed";
 
 interface ReviewDetailProps {
-  item: FeedItem;
+  itemId: number;
   onBack: () => void;
 }
 
-export default function ReviewDetail({ item, onBack }: ReviewDetailProps) {
+export default function ReviewDetail({ itemId, onBack }: ReviewDetailProps) {
+  const { data: item, isLoading } = useFeedItem(itemId);
+  const { data: comments = [] } = useFeedComments(itemId);
+  const likeMutation = useLikeFeedItem();
+  const addCommentMutation = useAddFeedComment();
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(item.likes);
+  const [commentText, setCommentText] = useState("");
 
-  const toggleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount((c) => (isLiked ? c - 1 : c + 1));
+  const handleLike = () => {
+    if (!isLiked && item) {
+      setIsLiked(true);
+      likeMutation.mutate(item.id);
+    }
   };
 
-  let headerIcon: string, headerText: string, headerColor: string, headerBg: string;
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: item?.title, text: item?.desc, url });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("링크가 복사되었습니다!");
+    }
+  };
+
+  const handleAddComment = () => {
+    if (!commentText.trim()) return;
+    addCommentMutation.mutate(
+      { feedItemId: itemId, text: commentText.trim() },
+      { onSuccess: () => setCommentText("") },
+    );
+  };
+
+  if (isLoading || !item) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white flex flex-col animate-[fadeIn_0.3s_ease-out]">
+        <div className="w-full max-w-[480px] mx-auto flex flex-col h-full bg-white shadow-2xl relative">
+          <header className="sticky top-0 bg-white/95 backdrop-blur-md z-20 border-b border-gray-100 flex items-center justify-between px-4 h-14">
+            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center text-gray-800 rounded-full">
+              <i className="fas fa-arrow-left text-lg" />
+            </button>
+            <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="w-10" />
+          </header>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-spin w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  let headerIcon: string, headerText: string, headerColor: string;
   if (item.type === "claim") {
     headerIcon = "fa-file-invoice-dollar";
     headerText = "회복 이야기";
     headerColor = "text-[#F97316]";
-    headerBg = "bg-orange-50";
   } else if (item.type === "product") {
     headerIcon = "fa-shield-halved";
     headerText = "상품 리뷰";
     headerColor = "text-[#0055B8]";
-    headerBg = "bg-blue-50";
   } else {
     headerIcon = "fa-comments";
     headerText = "라운지";
     headerColor = "text-[#00B8A9]";
-    headerBg = "bg-[#E6FFFA]";
   }
+
+  const likeCount = item.likes + (isLiked ? 1 : 0);
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col animate-[fadeIn_0.3s_ease-out]">
@@ -47,7 +94,11 @@ export default function ReviewDetail({ item, onBack }: ReviewDetailProps) {
           <h1 className="text-[16px] font-bold text-gray-900" data-testid="text-detail-title">
             {headerText}
           </h1>
-          <button className="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full transition-colors" data-testid="button-share">
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 flex items-center justify-center text-gray-800 hover:bg-gray-50 rounded-full transition-colors"
+            data-testid="button-share"
+          >
             <i className="fas fa-share-nodes text-lg" />
           </button>
         </header>
@@ -113,7 +164,7 @@ export default function ReviewDetail({ item, onBack }: ReviewDetailProps) {
           {item.type !== "lounge" && (
             <section className="px-5 mb-6">
               <div className="flex flex-wrap gap-2">
-                {item.tags.map((tag, i) => (
+                {(Array.isArray(item.tags) ? item.tags : []).map((tag: string, i: number) => (
                   <span
                     key={i}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold border ${
@@ -155,7 +206,7 @@ export default function ReviewDetail({ item, onBack }: ReviewDetailProps) {
 
           <section className="px-5 py-8 pb-4 flex justify-center">
             <button
-              onClick={toggleLike}
+              onClick={handleLike}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-full border font-bold text-[14px] transition-all hover:bg-gray-50 active:scale-95 shadow-sm ${
                 isLiked
                   ? "bg-orange-50 border-[#F97316] text-[#F97316]"
@@ -208,20 +259,72 @@ export default function ReviewDetail({ item, onBack }: ReviewDetailProps) {
               </div>
             </section>
           )}
+
+          {/* Comments Section */}
+          <section className="px-5 mt-4 mb-6">
+            <div className="border-t border-gray-100 pt-6">
+              <h3 className="text-[15px] font-bold text-gray-900 mb-4">
+                댓글 <span className="text-[#0055B8]">{comments.length}</span>
+              </h3>
+
+              {comments.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 text-[13px]">
+                  <i className="far fa-comment-dots text-2xl mb-2 block" />
+                  첫 번째 댓글을 남겨보세요!
+                </div>
+              ) : (
+                <div className="space-y-4 mb-4">
+                  {comments.map((c: FeedCommentAPI) => (
+                    <div key={c.id} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                        <i className="fas fa-user text-[10px]" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[13px] font-bold text-gray-800">{c.author}</span>
+                          <span className="text-[10px] text-gray-400">
+                            {new Date(c.createdAt).toLocaleDateString("ko-KR")}
+                          </span>
+                        </div>
+                        <p className="text-[13px] text-gray-600 leading-relaxed">{c.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
         </main>
 
-        {item.type === "claim" && (
-          <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100 p-4 pb-8 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-            <div className="flex justify-center -mt-7 mb-2">
-              <span className="bg-gray-800 text-white text-[10px] px-3 py-1 rounded-full shadow-lg opacity-90 animate-bounce">
-                이 고객님이 가입한 상품은?
-              </span>
+        {/* Comment input + CTA */}
+        <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+          {item.type === "claim" && (
+            <div className="px-4 pt-3">
+              <button className="w-full py-3 rounded-xl bg-[#F97316] text-white font-bold text-[14px] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 active:scale-[0.98]" data-testid="button-check-product">
+                <i className="fas fa-shield-halved" /> 이 고객이 가입한 상품 확인하기
+              </button>
             </div>
-            <button className="w-full py-4 rounded-xl bg-[#F97316] text-white font-bold text-[16px] shadow-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 active:scale-[0.98]" data-testid="button-check-product">
-              <i className="fas fa-shield-halved" /> 이 고객이 가입한 상품 확인하기
+          )}
+          <div className="flex items-center gap-2 px-4 py-3 pb-6">
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
+              placeholder="댓글을 입력해주세요..."
+              className="flex-1 h-10 px-4 bg-gray-100 rounded-full text-[13px] outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+              data-testid="input-comment"
+            />
+            <button
+              onClick={handleAddComment}
+              disabled={!commentText.trim() || addCommentMutation.isPending}
+              className="h-10 px-4 bg-[#0055B8] text-white rounded-full text-[13px] font-bold disabled:opacity-40 transition-all active:scale-95"
+              data-testid="button-submit-comment"
+            >
+              등록
             </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+
 interface MyPageProps {
   onBack: () => void;
   onMyReviews: () => void;
@@ -14,6 +16,10 @@ const menuItems = [
 ];
 
 export default function MyPage({ onBack, onMyReviews, onPush, onPolicy, onTerms }: MyPageProps) {
+  const { data: stats } = useQuery<{ posts: number; likes: number; pending: number }>({
+    queryKey: ["/api/user/stats"],
+  });
+
   const handlers: Record<string, () => void> = {
     reviews: onMyReviews,
     push: onPush,
@@ -52,13 +58,29 @@ export default function MyPage({ onBack, onMyReviews, onPush, onPolicy, onTerms 
               <div>
                 <h2 className="text-lg font-bold text-gray-900" data-testid="text-my-name">박*윤 님</h2>
                 <div className="flex gap-3 text-[12px] text-gray-500 mt-1">
-                  <span>작성글 <b className="text-[#0055B8]">5</b></span>
+                  <span>작성글 <b className="text-[#0055B8]">{stats?.posts ?? "-"}</b></span>
                   <span className="w-px h-3 bg-gray-300 mt-1" />
-                  <span>받은 공감 <b className="text-[#F97316]">248</b></span>
+                  <span>받은 공감 <b className="text-[#F97316]">{stats?.likes ?? "-"}</b></span>
                 </div>
               </div>
             </div>
           </section>
+
+          {/* 작성 대기 중인 이야기 */}
+          {stats && stats.pending > 0 && (
+            <section className="px-4 pt-4 pb-2">
+              <div className="bg-orange-50 rounded-2xl border border-orange-100 p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-[#F97316] flex-shrink-0">
+                  <i className="fas fa-clock text-sm" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[13px] font-bold text-gray-900">작성 대기 중인 이야기</h3>
+                  <p className="text-[11px] text-gray-500">심사 대기 중 <b className="text-[#F97316]">{stats.pending}건</b></p>
+                </div>
+                <i className="fas fa-chevron-right text-[10px] text-gray-300" />
+              </div>
+            </section>
+          )}
 
           <section className="px-4 py-4">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

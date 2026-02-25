@@ -1,6 +1,23 @@
 import { useState } from "react";
-import { getFeedData, type FeedItem } from "@/lib/feedData";
-import { balanceGames } from "@/lib/balanceGameData";
+import { type FeedItem } from "@/lib/feedData";
+import { useFeedItems, useDeleteFeedItem } from "@/hooks/use-feed";
+import { useBalanceGames } from "@/hooks/use-balance-games";
+import type { BalanceGame } from "@/lib/balanceGameData";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface MyReviewsProps {
   onBack: () => void;
@@ -10,8 +27,10 @@ interface MyReviewsProps {
 
 export default function MyReviews({ onBack, onDetail, onBalanceGame }: MyReviewsProps) {
   const [tab, setTab] = useState<"review" | "balance">("review");
+  const { data: feedData = [] } = useFeedItems();
+  const { data: balanceData = [] } = useBalanceGames();
 
-  const myReviews = getFeedData()
+  const myReviews = feedData
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice(0, 5);
 
@@ -59,7 +78,7 @@ export default function MyReviews({ onBack, onDetail, onBalanceGame }: MyReviews
           {tab === "review" ? (
             <ReviewTab items={myReviews} onDetail={onDetail} />
           ) : (
-            <BalanceTab onBalanceGame={onBalanceGame} />
+            <BalanceTab games={balanceData} onBalanceGame={onBalanceGame} />
           )}
         </main>
       </div>
@@ -68,6 +87,9 @@ export default function MyReviews({ onBack, onDetail, onBalanceGame }: MyReviews
 }
 
 function ReviewTab({ items, onDetail }: { items: FeedItem[]; onDetail: (item: FeedItem) => void }) {
+  const [deleteTarget, setDeleteTarget] = useState<FeedItem | null>(null);
+  const deleteMutation = useDeleteFeedItem();
+
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -81,58 +103,113 @@ function ReviewTab({ items, onDetail }: { items: FeedItem[]; onDetail: (item: Fe
   }
 
   return (
-    <div className="space-y-3">
-      {items.map((item, idx) => {
-        const isClaimType = item.type === "claim";
-        const borderColor = isClaimType ? "border-orange-100 hover:border-orange-300" : "border-blue-100 hover:border-blue-300";
-        const badgeBg = isClaimType ? "bg-orange-50 text-[#F97316] border-orange-100" : "bg-blue-50 text-[#0055B8] border-blue-100";
-        const badgeIcon = isClaimType ? "fa-file-invoice-dollar" : "fa-shield-halved";
-        const badgeText = isClaimType ? "보상후기" : "가입후기";
+    <>
+      <div className="space-y-3">
+        {items.map((item, idx) => {
+          const isClaimType = item.type === "claim";
+          const borderColor = isClaimType ? "border-orange-100 hover:border-orange-300" : "border-blue-100 hover:border-blue-300";
+          const badgeBg = isClaimType ? "bg-orange-50 text-[#F97316] border-orange-100" : "bg-blue-50 text-[#0055B8] border-blue-100";
+          const badgeIcon = isClaimType ? "fa-file-invoice-dollar" : "fa-shield-halved";
+          const badgeText = isClaimType ? "보상후기" : "가입후기";
 
-        return (
-          <article
-            key={item.id}
-            onClick={() => onDetail(item)}
-            className={`bg-white rounded-2xl p-5 border ${borderColor} shadow-sm cursor-pointer active:scale-[0.98] transition-all`}
-            data-testid={`my-review-${idx}`}
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-2">
-                <span className={`${badgeBg} text-[10px] font-bold px-2 py-0.5 rounded border`}>
-                  <i className={`fas ${badgeIcon}`} /> {badgeText}
-                </span>
-                <span className="text-[11px] text-gray-400">{item.date}</span>
+          return (
+            <article
+              key={item.id}
+              onClick={() => onDetail(item)}
+              className={`bg-white rounded-2xl p-5 border ${borderColor} shadow-sm cursor-pointer active:scale-[0.98] transition-all`}
+              data-testid={`my-review-${idx}`}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-2">
+                  <span className={`${badgeBg} text-[10px] font-bold px-2 py-0.5 rounded border`}>
+                    <i className={`fas ${badgeIcon}`} /> {badgeText}
+                  </span>
+                  <span className="text-[11px] text-gray-400">{item.date}</span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 rounded-full hover:bg-gray-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <i className="fas fa-ellipsis-v text-sm" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[120px]">
+                    <DropdownMenuItem
+                      className="text-red-500 focus:text-red-600 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget(item);
+                      }}
+                    >
+                      <i className="fas fa-trash-can mr-2 text-[12px]" />
+                      삭제
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <button className="w-8 h-8 flex items-center justify-center -mr-2 -mt-2 text-gray-300 rounded-full">
-                <i className="fas fa-ellipsis-v text-sm" />
-              </button>
-            </div>
 
-            <h3 className="font-bold text-gray-900 text-[15px] mb-1 leading-snug line-clamp-1">{item.title}</h3>
-            <p className="text-gray-600 text-[13px] line-clamp-2 leading-relaxed">{item.desc}</p>
+              <h3 className="font-bold text-gray-900 text-[15px] mb-1 leading-snug line-clamp-1">{item.title}</h3>
+              <p className="text-gray-600 text-[13px] line-clamp-2 leading-relaxed">{item.desc}</p>
 
-            <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
-              {item.prodName && (
-                <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
-                  <i className="fas fa-gift text-gray-300" /> {item.prodName}
-                </span>
-              )}
-              <div className="flex gap-2 text-[11px] text-gray-400 ml-auto">
-                <span><i className="far fa-heart" /> {item.likes}</span>
-                <span><i className="far fa-comment-dots" /> {item.comments}</span>
+              <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
+                {item.prodName && (
+                  <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                    <i className="fas fa-gift text-gray-300" /> {item.prodName}
+                  </span>
+                )}
+                <div className="flex gap-2 text-[11px] text-gray-400 ml-auto">
+                  <span><i className="far fa-heart" /> {item.likes}</span>
+                  <span><i className="far fa-comment-dots" /> {item.comments}</span>
+                </div>
               </div>
-            </div>
-          </article>
-        );
-      })}
-    </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="max-w-[320px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-[16px]">리뷰 삭제</DialogTitle>
+            <DialogDescription className="text-[13px] text-gray-500">
+              "{deleteTarget?.title}"을(를) 삭제하시겠습니까? 삭제된 리뷰는 복구할 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setDeleteTarget(null)}
+            >
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (deleteTarget) {
+                  deleteMutation.mutate(deleteTarget.id, {
+                    onSuccess: () => setDeleteTarget(null),
+                  });
+                }
+              }}
+            >
+              {deleteMutation.isPending ? "삭제 중..." : "삭제"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
-function BalanceTab({ onBalanceGame }: { onBalanceGame: (idx: number) => void }) {
+function BalanceTab({ games, onBalanceGame }: { games: BalanceGame[]; onBalanceGame: (idx: number) => void }) {
   return (
     <div className="space-y-3">
-      {balanceGames.map((game, idx) => (
+      {games.map((game, idx) => (
         <div
           key={game.id}
           onClick={() => onBalanceGame(idx)}

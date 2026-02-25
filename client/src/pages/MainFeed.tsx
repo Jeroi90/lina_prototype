@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { type FeedItem, initFeedData, getFeedData, chipsConfig } from "@/lib/feedData";
-import { balanceGames } from "@/lib/balanceGameData";
+import { type FeedItem, chipsConfig } from "@/lib/feedData";
+import { useFeedItems, useFeedItemsInfinite } from "@/hooks/use-feed";
+import { useBalanceGames } from "@/hooks/use-balance-games";
+import type { BalanceGame } from "@/lib/balanceGameData";
+import { FeedCardSkeleton, BestCardSkeleton, BalanceCardSkeleton } from "@/components/FeedSkeleton";
 
 interface MainFeedProps {
   onWrite: () => void;
@@ -77,6 +80,9 @@ function BannerSlider() {
     },
   ];
 
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isPaused = useRef(false);
+
   useEffect(() => {
     const el = sliderRef.current;
     if (!el) return;
@@ -91,6 +97,22 @@ function BannerSlider() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Auto-rolling: 5 second interval
+  useEffect(() => {
+    const el = sliderRef.current;
+    if (!el) return;
+    timerRef.current = setInterval(() => {
+      if (isPaused.current) return;
+      setActiveIdx((prev) => {
+        const next = (prev + 1) % banners.length;
+        const cardW = el.querySelector<HTMLElement>('.snap-start')?.offsetWidth || 300;
+        el.scrollTo({ left: next * (cardW + 12), behavior: 'smooth' });
+        return next;
+      });
+    }, 5000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [banners.length]);
+
   return (
     <section className="relative bg-white pt-5 pb-2 overflow-hidden">
       <div
@@ -98,6 +120,10 @@ function BannerSlider() {
         className="flex overflow-x-auto gap-3 snap-x px-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", scrollPaddingLeft: "16px", scrollPaddingRight: "16px" }}
         data-testid="banner-slider"
+        onTouchStart={() => { isPaused.current = true; }}
+        onTouchEnd={() => { setTimeout(() => { isPaused.current = false; }, 3000); }}
+        onMouseDown={() => { isPaused.current = true; }}
+        onMouseUp={() => { setTimeout(() => { isPaused.current = false; }, 3000); }}
       >
         {banners.map((b, i) => (
           <div
@@ -136,8 +162,8 @@ function BannerSlider() {
   );
 }
 
-function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
-  const items = getFeedData()
+function BestSection({ items, isLoading, onBestAll, onDetail }: { items: FeedItem[]; isLoading: boolean; onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
+  const bestItems = items
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice()
     .sort((a, b) => b.likes - a.likes)
@@ -161,7 +187,8 @@ function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail
         className="flex overflow-x-auto gap-3 px-5 pb-2"
         style={{ scrollbarWidth: "none" }}
       >
-        {items.map((item) => (
+        {isLoading && [0, 1, 2].map((i) => <BestCardSkeleton key={i} />)}
+        {bestItems.map((item) => (
           <div
             key={item.id}
             onClick={() => onDetail(item)}
@@ -184,7 +211,7 @@ function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail
   );
 }
 
-function BalanceSection({ onBalanceGame }: { onBalanceGame: (idx: number) => void }) {
+function BalanceSection({ games, isLoading, onBalanceGame }: { games: BalanceGame[]; isLoading: boolean; onBalanceGame: (idx: number) => void }) {
   return (
     <section className="py-5 bg-teal-50/50 border-b border-gray-100">
       <div className="px-5 mb-3 flex items-center justify-between">
@@ -193,7 +220,8 @@ function BalanceSection({ onBalanceGame }: { onBalanceGame: (idx: number) => voi
         </h2>
       </div>
       <div className="flex overflow-x-auto gap-3 px-5 snap-x pb-2" style={{ scrollbarWidth: "none" }}>
-        {balanceGames.map((g, i) => (
+        {isLoading && [0, 1].map((i) => <BalanceCardSkeleton key={i} />)}
+        {games.map((g, i) => (
           <div
             key={g.id}
             onClick={() => onBalanceGame(i)}
@@ -290,12 +318,37 @@ function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {
 export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, onMyPage }: MainFeedProps) {
   const [currentTab, setCurrentTab] = useState("recommend");
   const [currentCat, setCurrentCat] = useState("all");
-  const [, setRefreshKey] = useState(0);
 
+  // All items for BestSection (needs full dataset for sorting)
+  const { data: feedData = [], isLoading: feedLoading } = useFeedItems();
+  const { data: balanceData = [], isLoading: balanceLoading } = useBalanceGames();
+
+  // Infinite scroll for feed list
+  const {
+    data: infiniteData,
+    isLoading: infiniteLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFeedItemsInfinite(20);
+
+  const allInfiniteItems = infiniteData?.pages.flatMap((p) => p.items) ?? [];
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    initFeedData();
-    setRefreshKey((k) => k + 1);
-  }, []);
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const tabs = [
     { id: "recommend", label: "추천" },
@@ -310,7 +363,7 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
   }, []);
 
   const getFiltered = useCallback(() => {
-    const data = getFeedData();
+    const data = allInfiniteItems;
     if (currentTab === "recommend") {
       if (currentCat === "all") {
         return data.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
@@ -322,7 +375,7 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       filtered = filtered.filter((item) => item.cat === currentCat || item.tags.includes(currentCat));
     }
     return filtered;
-  }, [currentTab, currentCat]);
+  }, [currentTab, currentCat, allInfiniteItems]);
 
   const filtered = getFiltered();
   const chips = chipsConfig[currentTab] || [];
@@ -344,8 +397,8 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </header>
 
       <BannerSlider />
-      <BestSection onBestAll={onBestAll} onDetail={onDetail} />
-      <BalanceSection onBalanceGame={onBalanceGame} />
+      <BestSection items={feedData} isLoading={feedLoading} onBestAll={onBestAll} onDetail={onDetail} />
+      <BalanceSection games={balanceData} isLoading={balanceLoading} onBalanceGame={onBalanceGame} />
 
       <div className="sticky top-14 bg-white z-30 shadow-sm transition-all duration-300">
         <div className="flex border-b border-gray-100" data-testid="tab-bar">
@@ -383,12 +436,18 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </div>
 
       <main className="flex-1 bg-[#F8F9FA] pb-24 min-h-[400px]" data-testid="feed-container">
-        {filtered.length === 0 ? (
+        {infiniteLoading ? (
+          <>{[0, 1, 2].map((i) => <FeedCardSkeleton key={i} />)}</>
+        ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-gray-400 text-sm">조건에 맞는 이야기가 없습니다.</div>
         ) : (
-          filtered.map((item) => (
-            <FeedCard key={item.id} item={item} onClick={() => onDetail(item)} />
-          ))
+          <>
+            {filtered.map((item) => (
+              <FeedCard key={item.id} item={item} onClick={() => onDetail(item)} />
+            ))}
+            {isFetchingNextPage && [0, 1].map((i) => <FeedCardSkeleton key={`next-${i}`} />)}
+            <div ref={sentinelRef} className="h-4" />
+          </>
         )}
       </main>
 

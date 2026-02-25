@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { balanceGames, type BalanceComment } from "@/lib/balanceGameData";
+import { type BalanceComment } from "@/lib/balanceGameData";
+import { useBalanceGames, useBalanceGameVote, useAddBalanceGameComment } from "@/hooks/use-balance-games";
 
 interface BalanceGameDetailProps {
   initialCardIdx: number;
@@ -7,13 +8,11 @@ interface BalanceGameDetailProps {
 }
 
 export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGameDetailProps) {
+  const { data: games = [] } = useBalanceGames();
   const [activeIdx, setActiveIdx] = useState(initialCardIdx);
   const [flippedCards, setFlippedCards] = useState<Record<string, "A" | "B">>({});
-  const [localComments, setLocalComments] = useState<Record<string, BalanceComment[]>>(() => {
-    const init: Record<string, BalanceComment[]> = {};
-    balanceGames.forEach((g) => { init[g.id] = [...g.comments]; });
-    return init;
-  });
+  const [localComments, setLocalComments] = useState<Record<string, BalanceComment[]>>({});
+  const [commentsInit, setCommentsInit] = useState(false);
   const [sortMode, setSortMode] = useState<"latest" | "popular">("latest");
   const [filterMode, setFilterMode] = useState<"all" | "A" | "B">("all");
   const [commentText, setCommentText] = useState("");
@@ -21,7 +20,19 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
   const sliderRef = useRef<HTMLDivElement>(null);
   const scrolling = useRef(false);
 
-  const game = balanceGames[activeIdx];
+  // Initialize comments from API data
+  useEffect(() => {
+    if (games.length > 0 && !commentsInit) {
+      const init: Record<string, BalanceComment[]> = {};
+      games.forEach((g) => { init[g.id] = [...g.comments]; });
+      setLocalComments(init);
+      setCommentsInit(true);
+    }
+  }, [games, commentsInit]);
+
+  const game = games[activeIdx];
+
+  if (!game) return null;
 
   useEffect(() => {
     const el = sliderRef.current;
@@ -41,7 +52,7 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
     const cardWidth = cardEl.offsetWidth;
     const gap = 16;
     const idx = Math.round(el.scrollLeft / (cardWidth + gap));
-    const clamped = Math.max(0, Math.min(idx, balanceGames.length - 1));
+    const clamped = Math.max(0, Math.min(idx, games.length - 1));
     if (clamped !== activeIdx) {
       setActiveIdx(clamped);
       setSortMode("latest");
@@ -50,18 +61,27 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
     }
   }, [activeIdx]);
 
+  const voteMutation = useBalanceGameVote();
+  const addCommentMutation = useAddBalanceGameComment();
+
   const vote = useCallback((cardId: string, choice: "A" | "B") => {
     if (flippedCards[cardId]) return;
     setFlippedCards((prev) => ({ ...prev, [cardId]: choice }));
-  }, [flippedCards]);
+    // Persist vote to API (gameId is the DB integer id, not the string id)
+    const gameIndex = games.findIndex((g) => g.id === cardId);
+    if (gameIndex >= 0) {
+      voteMutation.mutate({ gameId: gameIndex + 1, choice });
+    }
+  }, [flippedCards, games, voteMutation]);
 
   const submitComment = useCallback(() => {
     if (!commentText.trim()) return;
     const cardId = game.id;
+    const choiceType = flippedCards[cardId] || "B";
     const newComment: BalanceComment = {
       name: "나",
       time: "방금 전",
-      type: flippedCards[cardId] || "B",
+      type: choiceType,
       text: commentText.trim(),
       likes: 0,
       isNew: true,
@@ -70,9 +90,14 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
       ...prev,
       [cardId]: [newComment, ...(prev[cardId] || [])],
     }));
+    // Persist to API
+    const gameIndex = games.findIndex((g) => g.id === cardId);
+    if (gameIndex >= 0) {
+      addCommentMutation.mutate({ gameId: gameIndex + 1, name: "나", type: choiceType, text: commentText.trim() });
+    }
     setCommentText("");
     if (sortMode === "popular") setSortMode("latest");
-  }, [commentText, game.id, flippedCards, sortMode]);
+  }, [commentText, game.id, flippedCards, sortMode, games, addCommentMutation]);
 
   const getFilteredComments = useCallback(() => {
     let list = [...(localComments[game.id] || [])];
@@ -114,7 +139,7 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
               className="flex gap-4 overflow-x-auto px-8 pb-8 pt-2 snap-x snap-mandatory"
               style={{ scrollbarWidth: "none" }}
             >
-              {balanceGames.map((g, i) => {
+              {games.map((g, i) => {
                 const isFlipped = !!flippedCards[g.id];
                 return (
                   <div
@@ -225,7 +250,7 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
             </div>
 
             <div className="flex justify-center gap-1.5 mt-[-10px]">
-              {balanceGames.map((_, i) => (
+              {games.map((_, i) => (
                 <div
                   key={i}
                   className={`w-1.5 h-1.5 rounded-full transition-colors ${i === activeIdx ? "bg-gray-800" : "bg-gray-300"}`}

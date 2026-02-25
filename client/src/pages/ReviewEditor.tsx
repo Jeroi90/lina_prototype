@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { addFeedItem, type FeedItem } from "@/lib/feedData";
+import { type FeedItem } from "@/lib/feedData";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface ReviewEditorProps {
   type: string;
@@ -167,7 +168,7 @@ export default function ReviewEditor({ type, productName, onClose, onSubmit }: R
     setScrollProgress(Math.min(pct, 100));
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (isNegative) {
       setShowCareModal(true);
       return;
@@ -217,9 +218,14 @@ export default function ReviewEditor({ type, productName, onClose, onSubmit }: R
       prodName: productName,
     };
 
-    addFeedItem(newItem);
-    alert("소중한 후기가 성공적으로 등록되었습니다!\n참여해 주셔서 감사합니다.");
-    onSubmit();
+    try {
+      await apiRequest("POST", "/api/feed", newItem);
+      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+      alert("소중한 후기가 성공적으로 등록되었습니다!\n참여해 주셔서 감사합니다.");
+      onSubmit();
+    } catch {
+      alert("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   }, [type, productName, selectedChips1, selectedChips2, texts, rating, isNegative, reviewTitle, onSubmit]);
 
   const handleCareCallback = useCallback(() => {
@@ -227,7 +233,7 @@ export default function ReviewEditor({ type, productName, onClose, onSubmit }: R
     alert("상담 예약 완료");
   }, []);
 
-  const handleCareSkip = useCallback(() => {
+  const handleCareSkip = useCallback(async () => {
     setShowCareModal(false);
 
     const catMap: Record<string, string> = {
@@ -259,9 +265,14 @@ export default function ReviewEditor({ type, productName, onClose, onSubmit }: R
       prodName: productName,
     };
 
-    addFeedItem(newItem);
-    alert("등록 완료");
-    onSubmit();
+    try {
+      await apiRequest("POST", "/api/feed", newItem);
+      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+      alert("등록 완료");
+      onSubmit();
+    } catch {
+      alert("등록 중 오류가 발생했습니다.");
+    }
   }, [type, productName, selectedChips1, texts, rating, reviewTitle, onSubmit]);
 
   const confirmConsentModal = useCallback(() => {
