@@ -65,6 +65,19 @@ export async function registerRoutes(
     res.status(201).json({ ...item, tags: JSON.parse(item.tags) });
   });
 
+  // Delete a feed item (soft delete)
+  app.delete("/api/feed/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    await storage.deleteFeedItem(id);
+    res.json({ success: true });
+  });
+
+  // User stats
+  app.get("/api/user/stats", async (_req, res) => {
+    const stats = await storage.getUserStats();
+    res.json(stats);
+  });
+
   // Like a feed item
   app.post("/api/feed/:id/like", async (req, res) => {
     const id = parseInt(req.params.id);

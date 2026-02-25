@@ -58,3 +58,15 @@ export function useCreateFeedItem() {
     },
   });
 }
+
+export function useDeleteFeedItem() {
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/feed/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/stats"] });
+    },
+  });
+}

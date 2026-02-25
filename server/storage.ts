@@ -118,6 +118,8 @@ export interface IStorage {
   getBalanceGameVoteCounts(gameId: number): Promise<{ a: number; b: number }>;
   addBalanceGameComment(gameId: number, data: { name: string; type: string; text: string }): Promise<BalanceGameCommentRow>;
   getBalanceGameComments(gameId: number): Promise<BalanceGameCommentRow[]>;
+  deleteFeedItem(id: number): Promise<void>;
+  getUserStats(): Promise<{ posts: number; likes: number; pending: number }>;
 }
 
 export class SqliteStorage implements IStorage {
@@ -213,6 +215,17 @@ export class SqliteStorage implements IStorage {
 
   async getBalanceGameComments(gameId: number): Promise<BalanceGameCommentRow[]> {
     return db.select().from(balanceGameComments).where(eq(balanceGameComments.gameId, gameId)).orderBy(desc(balanceGameComments.id)).all();
+  }
+
+  async deleteFeedItem(id: number): Promise<void> {
+    db.update(feedItems).set({ status: "deleted" }).where(eq(feedItems.id, id)).run();
+  }
+
+  async getUserStats(): Promise<{ posts: number; likes: number; pending: number }> {
+    const allItems = db.select().from(feedItems).where(eq(feedItems.status, "live")).all();
+    const pendingItems = db.select().from(feedItems).where(eq(feedItems.status, "pending")).all();
+    const totalLikes = allItems.reduce((sum, item) => sum + item.likes, 0);
+    return { posts: allItems.length, likes: totalLikes, pending: pendingItems.length };
   }
 }
 
