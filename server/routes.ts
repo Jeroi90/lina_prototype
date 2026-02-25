@@ -12,9 +12,10 @@ export async function registerRoutes(
 
   // --- Feed Items API ---
 
-  // Get all feed items
-  app.get("/api/feed", async (_req, res) => {
-    const items = await storage.getAllFeedItems();
+  // Get all feed items (default: live status only for public feed)
+  app.get("/api/feed", async (req, res) => {
+    const status = (req.query.status as string) || "live";
+    const items = await storage.getAllFeedItems(status === "all" ? undefined : { status });
     // Parse tags JSON for client consumption
     const parsed = items.map((item) => ({
       ...item,

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { type FeedItem, initFeedData, getFeedData, chipsConfig } from "@/lib/feedData";
-import { balanceGames } from "@/lib/balanceGameData";
+import { type FeedItem, chipsConfig } from "@/lib/feedData";
+import { useFeedItems } from "@/hooks/use-feed";
+import { useBalanceGames } from "@/hooks/use-balance-games";
+import type { BalanceGame } from "@/lib/balanceGameData";
 
 interface MainFeedProps {
   onWrite: () => void;
@@ -136,8 +138,8 @@ function BannerSlider() {
   );
 }
 
-function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
-  const items = getFeedData()
+function BestSection({ items, onBestAll, onDetail }: { items: FeedItem[]; onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
+  const bestItems = items
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice()
     .sort((a, b) => b.likes - a.likes)
@@ -161,7 +163,7 @@ function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail
         className="flex overflow-x-auto gap-3 px-5 pb-2"
         style={{ scrollbarWidth: "none" }}
       >
-        {items.map((item) => (
+        {bestItems.map((item) => (
           <div
             key={item.id}
             onClick={() => onDetail(item)}
@@ -184,7 +186,7 @@ function BestSection({ onBestAll, onDetail }: { onBestAll?: () => void; onDetail
   );
 }
 
-function BalanceSection({ onBalanceGame }: { onBalanceGame: (idx: number) => void }) {
+function BalanceSection({ games, onBalanceGame }: { games: BalanceGame[]; onBalanceGame: (idx: number) => void }) {
   return (
     <section className="py-5 bg-teal-50/50 border-b border-gray-100">
       <div className="px-5 mb-3 flex items-center justify-between">
@@ -193,7 +195,7 @@ function BalanceSection({ onBalanceGame }: { onBalanceGame: (idx: number) => voi
         </h2>
       </div>
       <div className="flex overflow-x-auto gap-3 px-5 snap-x pb-2" style={{ scrollbarWidth: "none" }}>
-        {balanceGames.map((g, i) => (
+        {games.map((g, i) => (
           <div
             key={g.id}
             onClick={() => onBalanceGame(i)}
@@ -290,12 +292,9 @@ function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {
 export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, onMyPage }: MainFeedProps) {
   const [currentTab, setCurrentTab] = useState("recommend");
   const [currentCat, setCurrentCat] = useState("all");
-  const [, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    initFeedData();
-    setRefreshKey((k) => k + 1);
-  }, []);
+  const { data: feedData = [], isLoading: feedLoading } = useFeedItems();
+  const { data: balanceData = [] } = useBalanceGames();
 
   const tabs = [
     { id: "recommend", label: "추천" },
@@ -310,19 +309,18 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
   }, []);
 
   const getFiltered = useCallback(() => {
-    const data = getFeedData();
     if (currentTab === "recommend") {
       if (currentCat === "all") {
-        return data.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
+        return feedData.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
       }
-      return data.filter((item) => item.tags.includes(currentCat) || item.cat === currentCat);
+      return feedData.filter((item) => item.tags.includes(currentCat) || item.cat === currentCat);
     }
-    let filtered = data.filter((item) => item.type === currentTab);
+    let filtered = feedData.filter((item) => item.type === currentTab);
     if (currentCat !== "all") {
       filtered = filtered.filter((item) => item.cat === currentCat || item.tags.includes(currentCat));
     }
     return filtered;
-  }, [currentTab, currentCat]);
+  }, [currentTab, currentCat, feedData]);
 
   const filtered = getFiltered();
   const chips = chipsConfig[currentTab] || [];
@@ -344,8 +342,8 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </header>
 
       <BannerSlider />
-      <BestSection onBestAll={onBestAll} onDetail={onDetail} />
-      <BalanceSection onBalanceGame={onBalanceGame} />
+      <BestSection items={feedData} onBestAll={onBestAll} onDetail={onDetail} />
+      <BalanceSection games={balanceData} onBalanceGame={onBalanceGame} />
 
       <div className="sticky top-14 bg-white z-30 shadow-sm transition-all duration-300">
         <div className="flex border-b border-gray-100" data-testid="tab-bar">
@@ -383,7 +381,9 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </div>
 
       <main className="flex-1 bg-[#F8F9FA] pb-24 min-h-[400px]" data-testid="feed-container">
-        {filtered.length === 0 ? (
+        {feedLoading ? (
+          <div className="py-12 text-center text-gray-400 text-sm">로딩 중...</div>
+        ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-gray-400 text-sm">조건에 맞는 이야기가 없습니다.</div>
         ) : (
           filtered.map((item) => (

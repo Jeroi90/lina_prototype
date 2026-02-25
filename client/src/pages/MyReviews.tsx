@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { getFeedData, type FeedItem } from "@/lib/feedData";
-import { balanceGames } from "@/lib/balanceGameData";
+import { type FeedItem } from "@/lib/feedData";
+import { useFeedItems } from "@/hooks/use-feed";
+import { useBalanceGames } from "@/hooks/use-balance-games";
+import type { BalanceGame } from "@/lib/balanceGameData";
 
 interface MyReviewsProps {
   onBack: () => void;
@@ -10,8 +12,10 @@ interface MyReviewsProps {
 
 export default function MyReviews({ onBack, onDetail, onBalanceGame }: MyReviewsProps) {
   const [tab, setTab] = useState<"review" | "balance">("review");
+  const { data: feedData = [] } = useFeedItems();
+  const { data: balanceData = [] } = useBalanceGames();
 
-  const myReviews = getFeedData()
+  const myReviews = feedData
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice(0, 5);
 
@@ -59,7 +63,7 @@ export default function MyReviews({ onBack, onDetail, onBalanceGame }: MyReviews
           {tab === "review" ? (
             <ReviewTab items={myReviews} onDetail={onDetail} />
           ) : (
-            <BalanceTab onBalanceGame={onBalanceGame} />
+            <BalanceTab games={balanceData} onBalanceGame={onBalanceGame} />
           )}
         </main>
       </div>
@@ -129,10 +133,10 @@ function ReviewTab({ items, onDetail }: { items: FeedItem[]; onDetail: (item: Fe
   );
 }
 
-function BalanceTab({ onBalanceGame }: { onBalanceGame: (idx: number) => void }) {
+function BalanceTab({ games, onBalanceGame }: { games: BalanceGame[]; onBalanceGame: (idx: number) => void }) {
   return (
     <div className="space-y-3">
-      {balanceGames.map((game, idx) => (
+      {games.map((game, idx) => (
         <div
           key={game.id}
           onClick={() => onBalanceGame(idx)}

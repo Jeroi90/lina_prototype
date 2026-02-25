@@ -89,7 +89,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  getAllFeedItems(): Promise<FeedItemRow[]>;
+  getAllFeedItems(filter?: { status?: string }): Promise<FeedItemRow[]>;
   getFeedItem(id: number): Promise<FeedItemRow | undefined>;
   createFeedItem(item: InsertFeedItem): Promise<FeedItemRow>;
   likeFeedItem(id: number): Promise<void>;
@@ -114,7 +114,10 @@ export class SqliteStorage implements IStorage {
     return user;
   }
 
-  async getAllFeedItems(): Promise<FeedItemRow[]> {
+  async getAllFeedItems(filter?: { status?: string }): Promise<FeedItemRow[]> {
+    if (filter?.status) {
+      return db.select().from(feedItems).where(eq(feedItems.status, filter.status)).orderBy(desc(feedItems.id)).all();
+    }
     return db.select().from(feedItems).orderBy(desc(feedItems.id)).all();
   }
 
