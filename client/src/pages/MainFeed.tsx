@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { type FeedItem, chipsConfig } from "@/lib/feedData";
-import { useFeedItems } from "@/hooks/use-feed";
+import { useFeedItems, useFeedItemsInfinite } from "@/hooks/use-feed";
 import { useBalanceGames } from "@/hooks/use-balance-games";
 import type { BalanceGame } from "@/lib/balanceGameData";
 import { FeedCardSkeleton, BestCardSkeleton, BalanceCardSkeleton } from "@/components/FeedSkeleton";
@@ -319,8 +319,36 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
   const [currentTab, setCurrentTab] = useState("recommend");
   const [currentCat, setCurrentCat] = useState("all");
 
+  // All items for BestSection (needs full dataset for sorting)
   const { data: feedData = [], isLoading: feedLoading } = useFeedItems();
   const { data: balanceData = [], isLoading: balanceLoading } = useBalanceGames();
+
+  // Infinite scroll for feed list
+  const {
+    data: infiniteData,
+    isLoading: infiniteLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFeedItemsInfinite(20);
+
+  const allInfiniteItems = infiniteData?.pages.flatMap((p) => p.items) ?? [];
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const tabs = [
     { id: "recommend", label: "추천" },
@@ -335,18 +363,19 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
   }, []);
 
   const getFiltered = useCallback(() => {
+    const data = allInfiniteItems;
     if (currentTab === "recommend") {
       if (currentCat === "all") {
-        return feedData.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
+        return data.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
       }
-      return feedData.filter((item) => item.tags.includes(currentCat) || item.cat === currentCat);
+      return data.filter((item) => item.tags.includes(currentCat) || item.cat === currentCat);
     }
-    let filtered = feedData.filter((item) => item.type === currentTab);
+    let filtered = data.filter((item) => item.type === currentTab);
     if (currentCat !== "all") {
       filtered = filtered.filter((item) => item.cat === currentCat || item.tags.includes(currentCat));
     }
     return filtered;
-  }, [currentTab, currentCat, feedData]);
+  }, [currentTab, currentCat, allInfiniteItems]);
 
   const filtered = getFiltered();
   const chips = chipsConfig[currentTab] || [];
@@ -407,14 +436,18 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </div>
 
       <main className="flex-1 bg-[#F8F9FA] pb-24 min-h-[400px]" data-testid="feed-container">
-        {feedLoading ? (
+        {infiniteLoading ? (
           <>{[0, 1, 2].map((i) => <FeedCardSkeleton key={i} />)}</>
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-gray-400 text-sm">조건에 맞는 이야기가 없습니다.</div>
         ) : (
-          filtered.map((item) => (
-            <FeedCard key={item.id} item={item} onClick={() => onDetail(item)} />
-          ))
+          <>
+            {filtered.map((item) => (
+              <FeedCard key={item.id} item={item} onClick={() => onDetail(item)} />
+            ))}
+            {isFetchingNextPage && [0, 1].map((i) => <FeedCardSkeleton key={`next-${i}`} />)}
+            <div ref={sentinelRef} className="h-4" />
+          </>
         )}
       </main>
 

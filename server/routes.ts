@@ -12,16 +12,25 @@ export async function registerRoutes(
 
   // --- Feed Items API ---
 
-  // Get all feed items (default: live status only for public feed)
+  // Get feed items - supports pagination when page param is provided
   app.get("/api/feed", async (req, res) => {
     const status = (req.query.status as string) || "live";
-    const items = await storage.getAllFeedItems(status === "all" ? undefined : { status });
-    // Parse tags JSON for client consumption
-    const parsed = items.map((item) => ({
-      ...item,
-      tags: JSON.parse(item.tags),
-    }));
-    res.json(parsed);
+    const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+    const limit = parseInt((req.query.limit as string) || "20");
+
+    if (page) {
+      // Paginated response
+      const { items, total } = await storage.getPaginatedFeedItems({
+        page, limit, status: status === "all" ? undefined : status,
+      });
+      const parsed = items.map((item) => ({ ...item, tags: JSON.parse(item.tags) }));
+      res.json({ items: parsed, total, page, hasMore: page * limit < total });
+    } else {
+      // Legacy: return all items as flat array
+      const items = await storage.getAllFeedItems(status === "all" ? undefined : { status });
+      const parsed = items.map((item) => ({ ...item, tags: JSON.parse(item.tags) }));
+      res.json(parsed);
+    }
   });
 
   // Get single feed item

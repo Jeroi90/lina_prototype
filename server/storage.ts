@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, sql, count } from "drizzle-orm";
 import {
   users, feedItems, balanceGames, reviewDetails,
   type User, type InsertUser, type FeedItemRow, type InsertFeedItem,
@@ -96,6 +96,7 @@ export interface IStorage {
   getAllBalanceGames(): Promise<BalanceGameRow[]>;
   getBalanceGame(id: number): Promise<BalanceGameRow | undefined>;
   getReviewDetail(feedItemId: number): Promise<ReviewDetailRow | undefined>;
+  getPaginatedFeedItems(options: { page: number; limit: number; status?: string }): Promise<{ items: FeedItemRow[]; total: number }>;
 }
 
 export class SqliteStorage implements IStorage {
@@ -153,6 +154,23 @@ export class SqliteStorage implements IStorage {
   async getReviewDetail(feedItemId: number): Promise<ReviewDetailRow | undefined> {
     const [detail] = db.select().from(reviewDetails).where(eq(reviewDetails.feedItemId, feedItemId)).all();
     return detail;
+  }
+
+  async getPaginatedFeedItems(options: { page: number; limit: number; status?: string }): Promise<{ items: FeedItemRow[]; total: number }> {
+    const { page, limit, status } = options;
+    const offset = (page - 1) * limit;
+    const condition = status ? eq(feedItems.status, status) : undefined;
+
+    const [totalResult] = condition
+      ? db.select({ count: count() }).from(feedItems).where(condition).all()
+      : db.select({ count: count() }).from(feedItems).all();
+    const total = totalResult?.count || 0;
+
+    const items = condition
+      ? db.select().from(feedItems).where(condition).orderBy(desc(feedItems.id)).limit(limit).offset(offset).all()
+      : db.select().from(feedItems).orderBy(desc(feedItems.id)).limit(limit).offset(offset).all();
+
+    return { items, total };
   }
 }
 

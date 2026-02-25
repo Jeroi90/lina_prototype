@@ -1,10 +1,30 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { FeedItem } from "@/lib/feedData";
+
+interface PaginatedFeedResponse {
+  items: FeedItem[];
+  total: number;
+  page: number;
+  hasMore: boolean;
+}
 
 export function useFeedItems() {
   return useQuery<FeedItem[]>({
     queryKey: ["/api/feed"],
+  });
+}
+
+export function useFeedItemsInfinite(limit = 20) {
+  return useInfiniteQuery<PaginatedFeedResponse>({
+    queryKey: ["/api/feed", "paginated"],
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(`/api/feed?page=${pageParam}&limit=${limit}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch feed");
+      return res.json();
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.page + 1 : undefined,
   });
 }
 
