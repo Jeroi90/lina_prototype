@@ -2,9 +2,9 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 import {
-  users, feedItems, balanceGames, reviewDetails, balanceGameVotes, balanceGameComments,
+  users, feedItems, balanceGames, reviewDetails, balanceGameVotes, balanceGameComments, feedComments,
   type User, type InsertUser, type FeedItemRow, type InsertFeedItem,
-  type BalanceGameRow, type ReviewDetailRow, type BalanceGameCommentRow,
+  type BalanceGameRow, type ReviewDetailRow, type BalanceGameCommentRow, type FeedCommentRow,
 } from "@shared/schema";
 import fs from "fs";
 import path from "path";
@@ -100,6 +100,14 @@ sqlite.exec(`
     hospital_comment TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS feed_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    feed_item_id INTEGER NOT NULL,
+    author TEXT NOT NULL,
+    text TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 export interface IStorage {
@@ -120,6 +128,8 @@ export interface IStorage {
   getBalanceGameComments(gameId: number): Promise<BalanceGameCommentRow[]>;
   deleteFeedItem(id: number): Promise<void>;
   getUserStats(): Promise<{ posts: number; likes: number; pending: number }>;
+  addFeedComment(feedItemId: number, data: { author: string; text: string }): Promise<FeedCommentRow>;
+  getFeedComments(feedItemId: number): Promise<FeedCommentRow[]>;
 }
 
 export class SqliteStorage implements IStorage {
@@ -226,6 +236,20 @@ export class SqliteStorage implements IStorage {
     const pendingItems = db.select().from(feedItems).where(eq(feedItems.status, "pending")).all();
     const totalLikes = allItems.reduce((sum, item) => sum + item.likes, 0);
     return { posts: allItems.length, likes: totalLikes, pending: pendingItems.length };
+  }
+
+  async addFeedComment(feedItemId: number, data: { author: string; text: string }): Promise<FeedCommentRow> {
+    const [comment] = db.insert(feedComments).values({ feedItemId, ...data }).returning().all();
+    // Increment comment count on the feed item
+    const item = await this.getFeedItem(feedItemId);
+    if (item) {
+      db.update(feedItems).set({ comments: item.comments + 1 }).where(eq(feedItems.id, feedItemId)).run();
+    }
+    return comment;
+  }
+
+  async getFeedComments(feedItemId: number): Promise<FeedCommentRow[]> {
+    return db.select().from(feedComments).where(eq(feedComments.feedItemId, feedItemId)).orderBy(desc(feedComments.id)).all();
   }
 }
 

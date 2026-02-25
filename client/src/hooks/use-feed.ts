@@ -70,3 +70,31 @@ export function useDeleteFeedItem() {
     },
   });
 }
+
+export interface FeedCommentAPI {
+  id: number;
+  feedItemId: number;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
+export function useFeedComments(feedItemId: number | null) {
+  return useQuery<FeedCommentAPI[]>({
+    queryKey: ["/api/feed", String(feedItemId), "comments"],
+    enabled: feedItemId !== null,
+  });
+}
+
+export function useAddFeedComment() {
+  return useMutation({
+    mutationFn: async ({ feedItemId, text }: { feedItemId: number; text: string }) => {
+      const res = await apiRequest("POST", `/api/feed/${feedItemId}/comments`, { author: "박*윤", text });
+      return res.json();
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/feed", String(variables.feedItemId), "comments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+    },
+  });
+}

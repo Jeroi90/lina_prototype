@@ -111,3 +111,14 @@ export const balanceGameComments = sqliteTable("balance_game_comments", {
 });
 
 export type BalanceGameCommentRow = typeof balanceGameComments.$inferSelect;
+
+// Feed Comments
+export const feedComments = sqliteTable("feed_comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  feedItemId: integer("feed_item_id").notNull(),
+  author: text("author").notNull(),
+  text: text("text").notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export type FeedCommentRow = typeof feedComments.$inferSelect;

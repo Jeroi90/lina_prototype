@@ -22,7 +22,6 @@ function AppRouter() {
   const [, setLocation] = useLocation();
   const [editorType, setEditorType] = useState("claim");
   const [editorProduct, setEditorProduct] = useState<string | undefined>();
-  const [detailItem, setDetailItem] = useState<FeedItem | null>(null);
   const [feedKey, setFeedKey] = useState(0);
   const [balanceCardIdx, setBalanceCardIdx] = useState(0);
 
@@ -42,8 +41,7 @@ function AppRouter() {
   }, [setLocation]);
 
   const goToDetail = useCallback((item: FeedItem) => {
-    setDetailItem(item);
-    setLocation("/detail");
+    setLocation(`/detail/${item.id}`);
   }, [setLocation]);
 
   const goToBalanceGame = useCallback((idx: number) => {
@@ -96,11 +94,9 @@ function AppRouter() {
             />
           </Route>
 
-          <Route path="/detail">
-            {detailItem ? (
-              <ReviewDetail item={detailItem} onBack={goToFeed} />
-            ) : (
-              <NotFound />
+          <Route path="/detail/:id">
+            {(params) => (
+              <ReviewDetail itemId={parseInt(params.id)} onBack={goToFeed} />
             )}
           </Route>
 

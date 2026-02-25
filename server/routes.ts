@@ -78,6 +78,20 @@ export async function registerRoutes(
     res.json(stats);
   });
 
+  // Feed comments
+  app.get("/api/feed/:id/comments", async (req, res) => {
+    const feedItemId = parseInt(req.params.id);
+    const comments = await storage.getFeedComments(feedItemId);
+    res.json(comments);
+  });
+
+  app.post("/api/feed/:id/comments", async (req, res) => {
+    const feedItemId = parseInt(req.params.id);
+    const { author, text } = req.body;
+    const comment = await storage.addFeedComment(feedItemId, { author: author || "익명", text });
+    res.status(201).json(comment);
+  });
+
   // Like a feed item
   app.post("/api/feed/:id/like", async (req, res) => {
     const id = parseInt(req.params.id);
