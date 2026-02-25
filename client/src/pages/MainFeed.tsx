@@ -3,6 +3,7 @@ import { type FeedItem, chipsConfig } from "@/lib/feedData";
 import { useFeedItems } from "@/hooks/use-feed";
 import { useBalanceGames } from "@/hooks/use-balance-games";
 import type { BalanceGame } from "@/lib/balanceGameData";
+import { FeedCardSkeleton, BestCardSkeleton, BalanceCardSkeleton } from "@/components/FeedSkeleton";
 
 interface MainFeedProps {
   onWrite: () => void;
@@ -79,6 +80,9 @@ function BannerSlider() {
     },
   ];
 
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isPaused = useRef(false);
+
   useEffect(() => {
     const el = sliderRef.current;
     if (!el) return;
@@ -93,6 +97,22 @@ function BannerSlider() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Auto-rolling: 5 second interval
+  useEffect(() => {
+    const el = sliderRef.current;
+    if (!el) return;
+    timerRef.current = setInterval(() => {
+      if (isPaused.current) return;
+      setActiveIdx((prev) => {
+        const next = (prev + 1) % banners.length;
+        const cardW = el.querySelector<HTMLElement>('.snap-start')?.offsetWidth || 300;
+        el.scrollTo({ left: next * (cardW + 12), behavior: 'smooth' });
+        return next;
+      });
+    }, 5000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [banners.length]);
+
   return (
     <section className="relative bg-white pt-5 pb-2 overflow-hidden">
       <div
@@ -100,6 +120,10 @@ function BannerSlider() {
         className="flex overflow-x-auto gap-3 snap-x px-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", scrollPaddingLeft: "16px", scrollPaddingRight: "16px" }}
         data-testid="banner-slider"
+        onTouchStart={() => { isPaused.current = true; }}
+        onTouchEnd={() => { setTimeout(() => { isPaused.current = false; }, 3000); }}
+        onMouseDown={() => { isPaused.current = true; }}
+        onMouseUp={() => { setTimeout(() => { isPaused.current = false; }, 3000); }}
       >
         {banners.map((b, i) => (
           <div
@@ -138,7 +162,7 @@ function BannerSlider() {
   );
 }
 
-function BestSection({ items, onBestAll, onDetail }: { items: FeedItem[]; onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
+function BestSection({ items, isLoading, onBestAll, onDetail }: { items: FeedItem[]; isLoading: boolean; onBestAll?: () => void; onDetail: (item: FeedItem) => void }) {
   const bestItems = items
     .filter((item) => item.type === "claim" || item.type === "product")
     .slice()
@@ -163,6 +187,7 @@ function BestSection({ items, onBestAll, onDetail }: { items: FeedItem[]; onBest
         className="flex overflow-x-auto gap-3 px-5 pb-2"
         style={{ scrollbarWidth: "none" }}
       >
+        {isLoading && [0, 1, 2].map((i) => <BestCardSkeleton key={i} />)}
         {bestItems.map((item) => (
           <div
             key={item.id}
@@ -186,7 +211,7 @@ function BestSection({ items, onBestAll, onDetail }: { items: FeedItem[]; onBest
   );
 }
 
-function BalanceSection({ games, onBalanceGame }: { games: BalanceGame[]; onBalanceGame: (idx: number) => void }) {
+function BalanceSection({ games, isLoading, onBalanceGame }: { games: BalanceGame[]; isLoading: boolean; onBalanceGame: (idx: number) => void }) {
   return (
     <section className="py-5 bg-teal-50/50 border-b border-gray-100">
       <div className="px-5 mb-3 flex items-center justify-between">
@@ -195,6 +220,7 @@ function BalanceSection({ games, onBalanceGame }: { games: BalanceGame[]; onBala
         </h2>
       </div>
       <div className="flex overflow-x-auto gap-3 px-5 snap-x pb-2" style={{ scrollbarWidth: "none" }}>
+        {isLoading && [0, 1].map((i) => <BalanceCardSkeleton key={i} />)}
         {games.map((g, i) => (
           <div
             key={g.id}
@@ -294,7 +320,7 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
   const [currentCat, setCurrentCat] = useState("all");
 
   const { data: feedData = [], isLoading: feedLoading } = useFeedItems();
-  const { data: balanceData = [] } = useBalanceGames();
+  const { data: balanceData = [], isLoading: balanceLoading } = useBalanceGames();
 
   const tabs = [
     { id: "recommend", label: "추천" },
@@ -342,8 +368,8 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
       </header>
 
       <BannerSlider />
-      <BestSection items={feedData} onBestAll={onBestAll} onDetail={onDetail} />
-      <BalanceSection games={balanceData} onBalanceGame={onBalanceGame} />
+      <BestSection items={feedData} isLoading={feedLoading} onBestAll={onBestAll} onDetail={onDetail} />
+      <BalanceSection games={balanceData} isLoading={balanceLoading} onBalanceGame={onBalanceGame} />
 
       <div className="sticky top-14 bg-white z-30 shadow-sm transition-all duration-300">
         <div className="flex border-b border-gray-100" data-testid="tab-bar">
@@ -382,7 +408,7 @@ export default function MainFeed({ onWrite, onDetail, onBalanceGame, onBestAll, 
 
       <main className="flex-1 bg-[#F8F9FA] pb-24 min-h-[400px]" data-testid="feed-container">
         {feedLoading ? (
-          <div className="py-12 text-center text-gray-400 text-sm">로딩 중...</div>
+          <>{[0, 1, 2].map((i) => <FeedCardSkeleton key={i} />)}</>
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-gray-400 text-sm">조건에 맞는 이야기가 없습니다.</div>
         ) : (
