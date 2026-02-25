@@ -2,9 +2,9 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 import {
-  users, feedItems, balanceGames, reviewDetails,
+  users, feedItems, balanceGames, reviewDetails, balanceGameVotes, balanceGameComments,
   type User, type InsertUser, type FeedItemRow, type InsertFeedItem,
-  type BalanceGameRow, type ReviewDetailRow,
+  type BalanceGameRow, type ReviewDetailRow, type BalanceGameCommentRow,
 } from "@shared/schema";
 import fs from "fs";
 import path from "path";
@@ -69,6 +69,23 @@ sqlite.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS balance_game_votes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER NOT NULL,
+    choice TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS balance_game_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    text TEXT NOT NULL,
+    likes INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS review_details (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     feed_item_id INTEGER NOT NULL,
@@ -97,6 +114,10 @@ export interface IStorage {
   getBalanceGame(id: number): Promise<BalanceGameRow | undefined>;
   getReviewDetail(feedItemId: number): Promise<ReviewDetailRow | undefined>;
   getPaginatedFeedItems(options: { page: number; limit: number; status?: string }): Promise<{ items: FeedItemRow[]; total: number }>;
+  addBalanceGameVote(gameId: number, choice: string): Promise<void>;
+  getBalanceGameVoteCounts(gameId: number): Promise<{ a: number; b: number }>;
+  addBalanceGameComment(gameId: number, data: { name: string; type: string; text: string }): Promise<BalanceGameCommentRow>;
+  getBalanceGameComments(gameId: number): Promise<BalanceGameCommentRow[]>;
 }
 
 export class SqliteStorage implements IStorage {
@@ -171,6 +192,27 @@ export class SqliteStorage implements IStorage {
       : db.select().from(feedItems).orderBy(desc(feedItems.id)).limit(limit).offset(offset).all();
 
     return { items, total };
+  }
+
+  async addBalanceGameVote(gameId: number, choice: string): Promise<void> {
+    db.insert(balanceGameVotes).values({ gameId, choice }).run();
+  }
+
+  async getBalanceGameVoteCounts(gameId: number): Promise<{ a: number; b: number }> {
+    const votes = db.select().from(balanceGameVotes).where(eq(balanceGameVotes.gameId, gameId)).all();
+    return {
+      a: votes.filter((v) => v.choice === "A").length,
+      b: votes.filter((v) => v.choice === "B").length,
+    };
+  }
+
+  async addBalanceGameComment(gameId: number, data: { name: string; type: string; text: string }): Promise<BalanceGameCommentRow> {
+    const [comment] = db.insert(balanceGameComments).values({ gameId, ...data }).returning().all();
+    return comment;
+  }
+
+  async getBalanceGameComments(gameId: number): Promise<BalanceGameCommentRow[]> {
+    return db.select().from(balanceGameComments).where(eq(balanceGameComments.gameId, gameId)).orderBy(desc(balanceGameComments.id)).all();
   }
 }
 

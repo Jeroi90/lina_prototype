@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { type BalanceComment } from "@/lib/balanceGameData";
-import { useBalanceGames } from "@/hooks/use-balance-games";
+import { useBalanceGames, useBalanceGameVote, useAddBalanceGameComment } from "@/hooks/use-balance-games";
 
 interface BalanceGameDetailProps {
   initialCardIdx: number;
@@ -61,18 +61,27 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
     }
   }, [activeIdx]);
 
+  const voteMutation = useBalanceGameVote();
+  const addCommentMutation = useAddBalanceGameComment();
+
   const vote = useCallback((cardId: string, choice: "A" | "B") => {
     if (flippedCards[cardId]) return;
     setFlippedCards((prev) => ({ ...prev, [cardId]: choice }));
-  }, [flippedCards]);
+    // Persist vote to API (gameId is the DB integer id, not the string id)
+    const gameIndex = games.findIndex((g) => g.id === cardId);
+    if (gameIndex >= 0) {
+      voteMutation.mutate({ gameId: gameIndex + 1, choice });
+    }
+  }, [flippedCards, games, voteMutation]);
 
   const submitComment = useCallback(() => {
     if (!commentText.trim()) return;
     const cardId = game.id;
+    const choiceType = flippedCards[cardId] || "B";
     const newComment: BalanceComment = {
       name: "나",
       time: "방금 전",
-      type: flippedCards[cardId] || "B",
+      type: choiceType,
       text: commentText.trim(),
       likes: 0,
       isNew: true,
@@ -81,9 +90,14 @@ export default function BalanceGameDetail({ initialCardIdx, onBack }: BalanceGam
       ...prev,
       [cardId]: [newComment, ...(prev[cardId] || [])],
     }));
+    // Persist to API
+    const gameIndex = games.findIndex((g) => g.id === cardId);
+    if (gameIndex >= 0) {
+      addCommentMutation.mutate({ gameId: gameIndex + 1, name: "나", type: choiceType, text: commentText.trim() });
+    }
     setCommentText("");
     if (sortMode === "popular") setSortMode("latest");
-  }, [commentText, game.id, flippedCards, sortMode]);
+  }, [commentText, game.id, flippedCards, sortMode, games, addCommentMutation]);
 
   const getFilteredComments = useCallback(() => {
     let list = [...(localComments[game.id] || [])];

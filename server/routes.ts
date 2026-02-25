@@ -120,6 +120,36 @@ export async function registerRoutes(
     });
   });
 
+  // Vote on a balance game
+  app.post("/api/balance-games/:id/vote", async (req, res) => {
+    const gameId = parseInt(req.params.id);
+    const { choice } = req.body;
+    if (!choice || !["A", "B"].includes(choice)) {
+      return res.status(400).json({ message: "choice must be A or B" });
+    }
+    await storage.addBalanceGameVote(gameId, choice);
+    const counts = await storage.getBalanceGameVoteCounts(gameId);
+    const total = counts.a + counts.b;
+    const pctA = total > 0 ? Math.round((counts.a / total) * 100) : 50;
+    const pctB = 100 - pctA;
+    res.json({ resultA: { pct: pctA }, resultB: { pct: pctB }, total });
+  });
+
+  // Get comments for a balance game
+  app.get("/api/balance-games/:id/comments", async (req, res) => {
+    const gameId = parseInt(req.params.id);
+    const comments = await storage.getBalanceGameComments(gameId);
+    res.json(comments);
+  });
+
+  // Add comment to a balance game
+  app.post("/api/balance-games/:id/comments", async (req, res) => {
+    const gameId = parseInt(req.params.id);
+    const { name, type, text } = req.body;
+    const comment = await storage.addBalanceGameComment(gameId, { name, type, text });
+    res.status(201).json(comment);
+  });
+
   // --- Chips Config (static) ---
   app.get("/api/chips-config", (_req, res) => {
     res.json({

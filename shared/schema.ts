@@ -88,3 +88,26 @@ export const reviewDetails = sqliteTable("review_details", {
 });
 
 export type ReviewDetailRow = typeof reviewDetails.$inferSelect;
+
+// Balance Game Votes
+export const balanceGameVotes = sqliteTable("balance_game_votes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  gameId: integer("game_id").notNull(),
+  choice: text("choice").notNull(), // "A" | "B"
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export type BalanceGameVoteRow = typeof balanceGameVotes.$inferSelect;
+
+// Balance Game Comments
+export const balanceGameComments = sqliteTable("balance_game_comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  gameId: integer("game_id").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // "A" | "B"
+  text: text("text").notNull(),
+  likes: integer("likes").notNull().default(0),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+export type BalanceGameCommentRow = typeof balanceGameComments.$inferSelect;
