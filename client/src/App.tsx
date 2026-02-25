@@ -15,6 +15,8 @@ import MyReviews from "@/pages/MyReviews";
 import PushSettings from "@/pages/PushSettings";
 import ServicePolicy from "@/pages/ServicePolicy";
 import Terms from "@/pages/Terms";
+import AdminReviewList from "@/pages/admin/AdminReviewList";
+import AdminReviewDetail from "@/pages/admin/AdminReviewDetail";
 import NotFound from "@/pages/not-found";
 import { type FeedItem } from "@/lib/feedData";
 
@@ -68,81 +70,83 @@ function AppRouter() {
 
   return (
     <div className="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
-      <div className="w-full max-w-[480px] bg-white shadow-2xl relative min-h-screen">
-        <Switch>
-          <Route path="/">
-            <MainFeed
-              key={feedKey}
-              onWrite={goToSelect}
-              onDetail={goToDetail}
-              onBalanceGame={goToBalanceGame}
-              onBestAll={goToBestFeed}
-              onMyPage={goToMyPage}
-            />
-          </Route>
+      <Switch>
+        {/* Admin routes - full width */}
+        <Route path="/admin">
+          <AdminReviewList />
+        </Route>
+        <Route path="/admin/review/:id">
+          {(params) => <AdminReviewDetail id={parseInt(params.id)} />}
+        </Route>
 
-          <Route path="/select">
-            <SubjectSelect onClose={goToFeed} onSelect={goToEditor} onBalanceGame={handleBalanceFromSelect} />
-          </Route>
-
-          <Route path="/editor">
-            <ReviewEditor
-              type={editorType}
-              productName={editorProduct}
-              onClose={() => setLocation("/select")}
-              onSubmit={handleEditorSubmit}
-            />
-          </Route>
-
-          <Route path="/detail/:id">
-            {(params) => (
-              <ReviewDetail itemId={parseInt(params.id)} onBack={goToFeed} />
-            )}
-          </Route>
-
-          <Route path="/balance">
-            <BalanceGameDetail initialCardIdx={balanceCardIdx} onBack={goToFeed} />
-          </Route>
-
-          <Route path="/best">
-            <BestFeed onBack={goToFeed} onDetail={goToDetail} />
-          </Route>
-
-          <Route path="/mypage">
-            <MyPage
-              onBack={goToFeed}
-              onMyReviews={() => setLocation("/myreviews")}
-              onPush={() => setLocation("/push")}
-              onPolicy={() => setLocation("/policy")}
-              onTerms={() => setLocation("/terms")}
-            />
-          </Route>
-
-          <Route path="/myreviews">
-            <MyReviews
-              onBack={() => setLocation("/mypage")}
-              onDetail={goToDetail}
-              onBalanceGame={goToBalanceGame}
-            />
-          </Route>
-
-          <Route path="/push">
-            <PushSettings onBack={() => setLocation("/mypage")} />
-          </Route>
-
-          <Route path="/policy">
-            <ServicePolicy onBack={() => setLocation("/mypage")} />
-          </Route>
-
-          <Route path="/terms">
-            <Terms onBack={() => setLocation("/mypage")} />
-          </Route>
-
-          <Route>
-            <NotFound />
-          </Route>
-        </Switch>
-      </div>
+        {/* Mobile routes - 480px container */}
+        <Route>
+          <div className="w-full max-w-[480px] bg-white shadow-2xl relative min-h-screen mx-auto">
+            <Switch>
+              <Route path="/">
+                <MainFeed
+                  key={feedKey}
+                  onWrite={goToSelect}
+                  onDetail={goToDetail}
+                  onBalanceGame={goToBalanceGame}
+                  onBestAll={goToBestFeed}
+                  onMyPage={goToMyPage}
+                />
+              </Route>
+              <Route path="/select">
+                <SubjectSelect onClose={goToFeed} onSelect={goToEditor} onBalanceGame={handleBalanceFromSelect} />
+              </Route>
+              <Route path="/editor">
+                <ReviewEditor
+                  type={editorType}
+                  productName={editorProduct}
+                  onClose={() => setLocation("/select")}
+                  onSubmit={handleEditorSubmit}
+                />
+              </Route>
+              <Route path="/detail/:id">
+                {(params) => (
+                  <ReviewDetail itemId={parseInt(params.id)} onBack={goToFeed} />
+                )}
+              </Route>
+              <Route path="/balance">
+                <BalanceGameDetail initialCardIdx={balanceCardIdx} onBack={goToFeed} />
+              </Route>
+              <Route path="/best">
+                <BestFeed onBack={goToFeed} onDetail={goToDetail} />
+              </Route>
+              <Route path="/mypage">
+                <MyPage
+                  onBack={goToFeed}
+                  onMyReviews={() => setLocation("/myreviews")}
+                  onPush={() => setLocation("/push")}
+                  onPolicy={() => setLocation("/policy")}
+                  onTerms={() => setLocation("/terms")}
+                />
+              </Route>
+              <Route path="/myreviews">
+                <MyReviews
+                  onBack={() => setLocation("/mypage")}
+                  onDetail={goToDetail}
+                  onBalanceGame={goToBalanceGame}
+                />
+              </Route>
+              <Route path="/push">
+                <PushSettings onBack={() => setLocation("/mypage")} />
+              </Route>
+              <Route path="/policy">
+                <ServicePolicy onBack={() => setLocation("/mypage")} />
+              </Route>
+              <Route path="/terms">
+                <Terms onBack={() => setLocation("/mypage")} />
+              </Route>
+              <Route>
+                <NotFound />
+              </Route>
+            </Switch>
+          </div>
+        </Route>
+      </Switch>
     </div>
   );
 }

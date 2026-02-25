@@ -130,6 +130,10 @@ export interface IStorage {
   getUserStats(): Promise<{ posts: number; likes: number; pending: number }>;
   addFeedComment(feedItemId: number, data: { author: string; text: string }): Promise<FeedCommentRow>;
   getFeedComments(feedItemId: number): Promise<FeedCommentRow[]>;
+  getAdminFeedItems(options: { page: number; limit: number; status?: string; type?: string }): Promise<{ items: FeedItemRow[]; total: number }>;
+  getFeedStats(): Promise<{ total: number; pending: number; live: number; reject: number }>;
+  updateFeedItem(id: number, data: { title?: string; desc?: string }): Promise<FeedItemRow | undefined>;
+  updateFeedItemStatus(id: number, status: string): Promise<FeedItemRow | undefined>;
 }
 
 export class SqliteStorage implements IStorage {
@@ -250,6 +254,49 @@ export class SqliteStorage implements IStorage {
 
   async getFeedComments(feedItemId: number): Promise<FeedCommentRow[]> {
     return db.select().from(feedComments).where(eq(feedComments.feedItemId, feedItemId)).orderBy(desc(feedComments.id)).all();
+  }
+
+  async getAdminFeedItems(options: { page: number; limit: number; status?: string; type?: string }): Promise<{ items: FeedItemRow[]; total: number }> {
+    const { page, limit, status, type } = options;
+    const offset = (page - 1) * limit;
+    const conditions = [];
+    if (status) conditions.push(eq(feedItems.status, status));
+    if (type) conditions.push(eq(feedItems.type, type));
+    // Exclude deleted by default unless explicitly requesting deleted
+    if (!status) conditions.push(sql`${feedItems.status} != 'deleted'`);
+
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [totalResult] = where
+      ? db.select({ count: count() }).from(feedItems).where(where).all()
+      : db.select({ count: count() }).from(feedItems).all();
+    const total = totalResult?.count || 0;
+
+    const items = where
+      ? db.select().from(feedItems).where(where).orderBy(desc(feedItems.id)).limit(limit).offset(offset).all()
+      : db.select().from(feedItems).orderBy(desc(feedItems.id)).limit(limit).offset(offset).all();
+
+    return { items, total };
+  }
+
+  async getFeedStats(): Promise<{ total: number; pending: number; live: number; reject: number }> {
+    const allItems = db.select().from(feedItems).where(sql`${feedItems.status} != 'deleted'`).all();
+    return {
+      total: allItems.length,
+      pending: allItems.filter((i) => i.status === "pending").length,
+      live: allItems.filter((i) => i.status === "live").length,
+      reject: allItems.filter((i) => i.status === "reject").length,
+    };
+  }
+
+  async updateFeedItem(id: number, data: { title?: string; desc?: string }): Promise<FeedItemRow | undefined> {
+    db.update(feedItems).set(data).where(eq(feedItems.id, id)).run();
+    return this.getFeedItem(id);
+  }
+
+  async updateFeedItemStatus(id: number, status: string): Promise<FeedItemRow | undefined> {
+    db.update(feedItems).set({ status }).where(eq(feedItems.id, id)).run();
+    return this.getFeedItem(id);
   }
 }
 

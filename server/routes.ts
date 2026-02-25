@@ -177,6 +177,47 @@ export async function registerRoutes(
     res.status(201).json(comment);
   });
 
+  // --- Admin API ---
+
+  app.get("/api/admin/feed/stats", async (_req, res) => {
+    const stats = await storage.getFeedStats();
+    res.json(stats);
+  });
+
+  app.get("/api/admin/feed", async (req, res) => {
+    const page = parseInt((req.query.page as string) || "1");
+    const limit = parseInt((req.query.limit as string) || "20");
+    const status = req.query.status as string | undefined;
+    const type = req.query.type as string | undefined;
+
+    const { items, total } = await storage.getAdminFeedItems({
+      page, limit,
+      status: status || undefined,
+      type: type || undefined,
+    });
+    const parsed = items.map((item) => ({ ...item, tags: JSON.parse(item.tags) }));
+    res.json({ items: parsed, total, page, hasMore: page * limit < total });
+  });
+
+  app.patch("/api/admin/feed/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { title, desc } = req.body;
+    const updated = await storage.updateFeedItem(id, { title, desc });
+    if (!updated) return res.status(404).json({ message: "Not found" });
+    res.json({ ...updated, tags: JSON.parse(updated.tags) });
+  });
+
+  app.patch("/api/admin/feed/:id/status", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { status } = req.body;
+    if (!["pending", "live", "reject"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    const updated = await storage.updateFeedItemStatus(id, status);
+    if (!updated) return res.status(404).json({ message: "Not found" });
+    res.json({ ...updated, tags: JSON.parse(updated.tags) });
+  });
+
   // --- Chips Config (static) ---
   app.get("/api/chips-config", (_req, res) => {
     res.json({
