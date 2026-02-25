@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Switch, Route, useLocation } from "wouter";
 import MainFeed from "@/pages/MainFeed";
 import SubjectSelect from "@/pages/SubjectSelect";
 import ReviewEditor from "@/pages/ReviewEditor";
@@ -14,12 +15,11 @@ import MyReviews from "@/pages/MyReviews";
 import PushSettings from "@/pages/PushSettings";
 import ServicePolicy from "@/pages/ServicePolicy";
 import Terms from "@/pages/Terms";
+import NotFound from "@/pages/not-found";
 import { type FeedItem } from "@/lib/feedData";
 
-type Screen = "feed" | "select" | "editor" | "detail" | "balance" | "bestfeed" | "mypage" | "myreviews" | "push" | "policy" | "terms";
-
-function App() {
-  const [screen, setScreen] = useState<Screen>("feed");
+function AppRouter() {
+  const [, setLocation] = useLocation();
   const [editorType, setEditorType] = useState("claim");
   const [editorProduct, setEditorProduct] = useState<string | undefined>();
   const [detailItem, setDetailItem] = useState<FeedItem | null>(null);
@@ -28,36 +28,36 @@ function App() {
 
   const goToFeed = useCallback(() => {
     setFeedKey((k) => k + 1);
-    setScreen("feed");
-  }, []);
+    setLocation("/");
+  }, [setLocation]);
 
   const goToSelect = useCallback(() => {
-    setScreen("select");
-  }, []);
+    setLocation("/select");
+  }, [setLocation]);
 
   const goToEditor = useCallback((type: string, productName?: string) => {
     setEditorType(type);
     setEditorProduct(productName);
-    setScreen("editor");
-  }, []);
+    setLocation("/editor");
+  }, [setLocation]);
 
   const goToDetail = useCallback((item: FeedItem) => {
     setDetailItem(item);
-    setScreen("detail");
-  }, []);
+    setLocation("/detail");
+  }, [setLocation]);
 
   const goToBalanceGame = useCallback((idx: number) => {
     setBalanceCardIdx(idx);
-    setScreen("balance");
-  }, []);
+    setLocation("/balance");
+  }, [setLocation]);
 
   const goToBestFeed = useCallback(() => {
-    setScreen("bestfeed");
-  }, []);
+    setLocation("/best");
+  }, [setLocation]);
 
   const goToMyPage = useCallback(() => {
-    setScreen("mypage");
-  }, []);
+    setLocation("/mypage");
+  }, [setLocation]);
 
   const handleEditorSubmit = useCallback(() => {
     goToFeed();
@@ -65,14 +65,14 @@ function App() {
 
   const handleBalanceFromSelect = useCallback(() => {
     setBalanceCardIdx(0);
-    setScreen("balance");
-  }, []);
+    setLocation("/balance");
+  }, [setLocation]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
-          <div className="w-full max-w-[480px] bg-white shadow-2xl relative min-h-screen">
+    <div className="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
+      <div className="w-full max-w-[480px] bg-white shadow-2xl relative min-h-screen">
+        <Switch>
+          <Route path="/">
             <MainFeed
               key={feedKey}
               onWrite={goToSelect}
@@ -81,63 +81,81 @@ function App() {
               onBestAll={goToBestFeed}
               onMyPage={goToMyPage}
             />
+          </Route>
 
-            {screen === "select" && (
-              <SubjectSelect onClose={goToFeed} onSelect={goToEditor} onBalanceGame={handleBalanceFromSelect} />
-            )}
+          <Route path="/select">
+            <SubjectSelect onClose={goToFeed} onSelect={goToEditor} onBalanceGame={handleBalanceFromSelect} />
+          </Route>
 
-            {screen === "editor" && (
-              <ReviewEditor
-                type={editorType}
-                productName={editorProduct}
-                onClose={() => setScreen("select")}
-                onSubmit={handleEditorSubmit}
-              />
-            )}
+          <Route path="/editor">
+            <ReviewEditor
+              type={editorType}
+              productName={editorProduct}
+              onClose={() => setLocation("/select")}
+              onSubmit={handleEditorSubmit}
+            />
+          </Route>
 
-            {screen === "detail" && detailItem && (
+          <Route path="/detail">
+            {detailItem ? (
               <ReviewDetail item={detailItem} onBack={goToFeed} />
+            ) : (
+              <NotFound />
             )}
+          </Route>
 
-            {screen === "balance" && (
-              <BalanceGameDetail initialCardIdx={balanceCardIdx} onBack={goToFeed} />
-            )}
+          <Route path="/balance">
+            <BalanceGameDetail initialCardIdx={balanceCardIdx} onBack={goToFeed} />
+          </Route>
 
-            {screen === "bestfeed" && (
-              <BestFeed onBack={goToFeed} onDetail={goToDetail} />
-            )}
+          <Route path="/best">
+            <BestFeed onBack={goToFeed} onDetail={goToDetail} />
+          </Route>
 
-            {screen === "mypage" && (
-              <MyPage
-                onBack={goToFeed}
-                onMyReviews={() => setScreen("myreviews")}
-                onPush={() => setScreen("push")}
-                onPolicy={() => setScreen("policy")}
-                onTerms={() => setScreen("terms")}
-              />
-            )}
+          <Route path="/mypage">
+            <MyPage
+              onBack={goToFeed}
+              onMyReviews={() => setLocation("/myreviews")}
+              onPush={() => setLocation("/push")}
+              onPolicy={() => setLocation("/policy")}
+              onTerms={() => setLocation("/terms")}
+            />
+          </Route>
 
-            {screen === "myreviews" && (
-              <MyReviews
-                onBack={() => setScreen("mypage")}
-                onDetail={goToDetail}
-                onBalanceGame={goToBalanceGame}
-              />
-            )}
+          <Route path="/myreviews">
+            <MyReviews
+              onBack={() => setLocation("/mypage")}
+              onDetail={goToDetail}
+              onBalanceGame={goToBalanceGame}
+            />
+          </Route>
 
-            {screen === "push" && (
-              <PushSettings onBack={() => setScreen("mypage")} />
-            )}
+          <Route path="/push">
+            <PushSettings onBack={() => setLocation("/mypage")} />
+          </Route>
 
-            {screen === "policy" && (
-              <ServicePolicy onBack={() => setScreen("mypage")} />
-            )}
+          <Route path="/policy">
+            <ServicePolicy onBack={() => setLocation("/mypage")} />
+          </Route>
 
-            {screen === "terms" && (
-              <Terms onBack={() => setScreen("mypage")} />
-            )}
-          </div>
-        </div>
+          <Route path="/terms">
+            <Terms onBack={() => setLocation("/mypage")} />
+          </Route>
+
+          <Route>
+            <NotFound />
+          </Route>
+        </Switch>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AppRouter />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

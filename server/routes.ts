@@ -1,16 +1,146 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+import { type Server } from "http";
 import { storage } from "./storage";
+import { seedDatabase } from "./seed";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  // Seed database with initial data on startup
+  seedDatabase();
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // --- Feed Items API ---
+
+  // Get all feed items
+  app.get("/api/feed", async (_req, res) => {
+    const items = await storage.getAllFeedItems();
+    // Parse tags JSON for client consumption
+    const parsed = items.map((item) => ({
+      ...item,
+      tags: JSON.parse(item.tags),
+    }));
+    res.json(parsed);
+  });
+
+  // Get single feed item
+  app.get("/api/feed/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const item = await storage.getFeedItem(id);
+    if (!item) {
+      return res.status(404).json({ message: "Feed item not found" });
+    }
+    res.json({ ...item, tags: JSON.parse(item.tags) });
+  });
+
+  // Create a new feed item (submit review)
+  app.post("/api/feed", async (req, res) => {
+    const { type, cat, tags, title, desc, author, badge, star, prodName } = req.body;
+    const item = await storage.createFeedItem({
+      type,
+      cat,
+      tags: JSON.stringify(tags || []),
+      title,
+      desc,
+      author: author || "익명",
+      badge: badge || "신규",
+      star: star || 0,
+      likes: 0,
+      comments: 0,
+      date: "방금 전",
+      prodName: prodName || null,
+      status: "pending",
+      userId: null,
+    });
+    res.status(201).json({ ...item, tags: JSON.parse(item.tags) });
+  });
+
+  // Like a feed item
+  app.post("/api/feed/:id/like", async (req, res) => {
+    const id = parseInt(req.params.id);
+    await storage.likeFeedItem(id);
+    const item = await storage.getFeedItem(id);
+    if (!item) {
+      return res.status(404).json({ message: "Feed item not found" });
+    }
+    res.json({ likes: item.likes });
+  });
+
+  // --- Balance Games API ---
+
+  // Get all balance games
+  app.get("/api/balance-games", async (_req, res) => {
+    const games = await storage.getAllBalanceGames();
+    // Transform to client-friendly format
+    const parsed = games.map((g) => ({
+      id: g.id,
+      tag: g.tag,
+      title: g.title,
+      image: g.image,
+      optionA: { label: g.optionALabel, sub: g.optionASub },
+      optionB: { label: g.optionBLabel, sub: g.optionBSub },
+      resultA: { label: g.resultALabel, pct: g.resultAPct },
+      resultB: { label: g.resultBLabel, pct: g.resultBPct },
+      participants: g.participants,
+      commentPlaceholder: g.commentPlaceholder,
+      comments: JSON.parse(g.commentsJson),
+    }));
+    res.json(parsed);
+  });
+
+  // Get single balance game
+  app.get("/api/balance-games/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const game = await storage.getBalanceGame(id);
+    if (!game) {
+      return res.status(404).json({ message: "Balance game not found" });
+    }
+    res.json({
+      id: game.id,
+      tag: game.tag,
+      title: game.title,
+      image: game.image,
+      optionA: { label: game.optionALabel, sub: game.optionASub },
+      optionB: { label: game.optionBLabel, sub: game.optionBSub },
+      resultA: { label: game.resultALabel, pct: game.resultAPct },
+      resultB: { label: game.resultBLabel, pct: game.resultBPct },
+      participants: game.participants,
+      commentPlaceholder: game.commentPlaceholder,
+      comments: JSON.parse(game.commentsJson),
+    });
+  });
+
+  // --- Chips Config (static) ---
+  app.get("/api/chips-config", (_req, res) => {
+    res.json({
+      recommend: [
+        { id: "all", label: "BEST" },
+        { id: "cost", label: "병원비_0원" },
+        { id: "dental", label: "치아보험" },
+        { id: "cancer", label: "암보험" },
+        { id: "worry", label: "#고민상담" },
+      ],
+      claim: [
+        { id: "all", label: "전체" },
+        { id: "dental", label: "치아" },
+        { id: "cancer", label: "암/중대질병" },
+        { id: "brain", label: "뇌/심장" },
+        { id: "dementia", label: "치매/간병" },
+      ],
+      product: [
+        { id: "all", label: "전체" },
+        { id: "dental", label: "치아보험" },
+        { id: "cancer", label: "암보험" },
+        { id: "dementia", label: "치매/간병" },
+      ],
+      lounge: [
+        { id: "all", label: "전체" },
+        { id: "balance", label: "밸런스게임" },
+        { id: "worry", label: "고민상담" },
+        { id: "tips", label: "생활지혜" },
+      ],
+    });
+  });
 
   return httpServer;
 }
