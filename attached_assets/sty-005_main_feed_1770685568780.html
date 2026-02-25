@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lina Story Hub - Real Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0055B8',
+                            orange: '#F97316',
+                            teal: '#00B8A9',
+                            bg: '#F8F9FA'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .tab-btn.active {
+            color: #111827;
+            font-weight: 800;
+            border-bottom: 2px solid #111827;
+        }
+        .tab-btn {
+            color: #9CA3AF;
+            border-bottom: 2px solid transparent;
+        }
+
+        .chip-btn.active {
+            background-color: #374151;
+            color: white;
+            border-color: #374151;
+            font-weight: 700;
+        }
+
+        .filter-btn-active {
+            background-color: #DBEAFE;
+            color: #0055B8;
+            border-color: #0055B8;
+        }
+
+        .banner-container { scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+        .banner-slide { scroll-snap-align: start; }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen font-sans text-gray-800">
+
+    <div class="w-full max-w-[480px] bg-white shadow-2xl relative min-h-screen flex flex-col overflow-hidden">
+
+        <header class="h-14 px-5 flex items-center justify-between bg-white/95 backdrop-blur-md z-30 sticky top-0 border-b border-gray-100">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                <span class="text-brand-blue font-bold text-xl tracking-tight">Story</span>
+            </div>
+            <div class="flex items-center gap-4 text-gray-700">
+                <button aria-label="Search"><i class="fa-solid fa-magnifying-glass text-lg"></i></button>
+                <button aria-label="Profile"><i class="fa-regular fa-user text-lg"></i></button>
+            </div>
+        </header>
+
+        <section class="relative bg-white pt-5 pb-2 overflow-hidden">
+            <div id="main-slider" class="banner-container flex overflow-x-auto w-full px-5 gap-3 no-scrollbar snap-x">
+                
+                <div class="banner-slide flex-shrink-0 w-full rounded-2xl bg-gradient-to-r from-[#003E85] to-[#0055B8] p-6 text-white relative overflow-hidden h-44 flex flex-col justify-center shadow-lg">
+                    <div class="absolute right-[-20px] top-[-20px] opacity-10 text-[120px]"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <span class="inline-block px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold w-fit mb-2 backdrop-blur-sm">12월 라이나 Insight</span>
+                    <h2 class="font-bold text-xl leading-snug mb-1">
+                        이번 달 뇌/심장 보험금<br>
+                        <span class="text-[#00C7E2]">총 842명</span> 지급 완료!
+                    </h2>
+                    <button class="mt-3 bg-white text-brand-blue text-xs font-bold py-2 px-4 rounded-full w-fit shadow-sm">
+                        보상 후기 보기 <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+
+                <div class="banner-slide flex-shrink-0 w-full rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-500 p-6 text-white relative overflow-hidden h-44 flex flex-col justify-center shadow-lg">
+                    <div class="absolute right-[-10px] bottom-[-20px] opacity-20 text-[100px]"><i class="fa-solid fa-comments"></i></div>
+                    <span class="inline-block px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold w-fit mb-2 backdrop-blur-sm">NEW 라운지 오픈</span>
+                    <h2 class="font-bold text-xl leading-snug mb-1">
+                        "축의금 10만원, 손절?"<br>
+                        지금 <span class="text-yellow-300">뜨거운 논쟁</span> 참여하기
+                    </h2>
+                    <button class="mt-3 bg-white text-teal-600 text-xs font-bold py-2 px-4 rounded-full w-fit shadow-sm">
+                        투표하러 가기 <i class="fa-solid fa-check ml-1"></i>
+                    </button>
+                </div>
+
+                <div class="banner-slide flex-shrink-0 w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-500 p-6 text-white relative overflow-hidden h-44 flex flex-col justify-center shadow-lg">
+                    <div class="absolute right-[-10px] bottom-[-30px] opacity-10 text-[100px]"><i class="fa-solid fa-gift"></i></div>
+                    <span class="inline-block px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold w-fit mb-2 backdrop-blur-sm">멤버십 혜택</span>
+                    <h2 class="font-bold text-xl leading-snug mb-1">
+                        소중한 경험 나누고<br>
+                        <span class="text-yellow-300">기부 천사</span> 되어보세요
+                    </h2>
+                    <button class="mt-3 bg-white text-indigo-600 text-xs font-bold py-2 px-4 rounded-full w-fit shadow-sm">
+                        글쓰러 가기 <i class="fa-solid fa-pen ml-1"></i>
+                    </button>
+                </div>
+
+                <div class="banner-slide flex-shrink-0 w-full rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white relative overflow-hidden h-44 flex flex-col justify-center shadow-lg">
+                    <div class="absolute right-[-20px] top-[10px] opacity-10 text-[120px]"><i class="fa-solid fa-tooth"></i></div>
+                    <span class="inline-block px-2 py-0.5 bg-white/20 rounded text-[10px] font-bold w-fit mb-2 backdrop-blur-sm">2026 덴탈 리포트</span>
+                    <h2 class="font-bold text-xl leading-snug mb-1">
+                        임플란트, 서울에서<br>
+                        <span class="text-yellow-200">어디가 제일 쌀까?</span>
+                    </h2>
+                    <button class="mt-3 bg-white text-orange-600 text-xs font-bold py-2 px-4 rounded-full w-fit shadow-sm">
+                        가격표 확인하기 <i class="fa-solid fa-magnifying-glass ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+            
+            <div class="flex justify-center gap-1.5 mt-3" id="banner-indicators">
+                <div class="w-4 h-1.5 rounded-full bg-brand-blue transition-all"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all"></div>
+            </div>
+        </section>
+
+        <section class="py-4 bg-white border-b border-gray-100">
+            <div class="flex items-center justify-between px-5 mb-3">
+                <h2 class="font-bold text-gray-900 text-[15px]">🔥 지금 가장 공감받는 후기</h2>
+                <span class="text-[11px] text-gray-400">실시간 집계</span>
+            </div>
+            <div class="flex overflow-x-auto gap-3 px-5 no-scrollbar pb-2">
+                <div class="flex-shrink-0 w-64 bg-white rounded-xl p-4 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.05)] cursor-pointer hover:border-brand-blue transition-colors">
+                    <div class="flex items-center gap-1 mb-2">
+                        <span class="bg-red-50 text-red-500 text-[10px] font-bold px-1.5 py-0.5 rounded">BEST</span>
+                        <span class="text-[10px] text-gray-400">🔥 1,240명이 공감</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm mb-1 truncate">암 진단금 5천만원, 서류 제출 다음날 바로...</h3>
+                    <p class="text-gray-500 text-xs line-clamp-1">경황이 없었는데 정말 큰 힘이 되었습니다. 감사합니다.</p>
+                </div>
+                <div class="flex-shrink-0 w-64 bg-white rounded-xl p-4 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.05)] cursor-pointer hover:border-brand-blue transition-colors">
+                    <div class="flex items-center gap-1 mb-2">
+                        <span class="bg-red-50 text-red-500 text-[10px] font-bold px-1.5 py-0.5 rounded">BEST</span>
+                        <span class="text-[10px] text-gray-400">🔥 980명이 공감</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm mb-1 truncate">은퇴 후 10억, 전원주택 vs 서울 아파트?</h3>
+                    <p class="text-gray-500 text-xs line-clamp-1">평생 도시에서 살았는데 와이프는 시골 가자고 하네요.</p>
+                </div>
+                <div class="flex-shrink-0 w-64 bg-white rounded-xl p-4 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.05)] cursor-pointer hover:border-brand-blue transition-colors">
+                    <div class="flex items-center gap-1 mb-2">
+                        <span class="bg-red-50 text-red-500 text-[10px] font-bold px-1.5 py-0.5 rounded">BEST</span>
+                        <span class="text-[10px] text-gray-400">🔥 850명이 공감</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm mb-1 truncate">30대 가장, 아이들 위해 종신보험...</h3>
+                    <p class="text-gray-500 text-xs line-clamp-1">가족을 위해 드디어 결심했습니다. 추천 부탁드려요.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 bg-teal-50/50 border-b border-gray-100">
+            <div class="px-5 mb-3 flex items-center justify-between">
+                <h2 class="font-bold text-gray-900 text-[15px] flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced text-brand-teal"></i> 밸런스 게임
+                </h2>
+                <span class="text-[11px] text-brand-teal font-medium bg-white px-2 py-0.5 rounded-full shadow-sm border border-teal-100">결과가 궁금하다면? Click!</span>
+            </div>
+
+            <div class="flex overflow-x-auto gap-3 px-5 no-scrollbar snap-x pb-2">
+                <div onclick="openWriteModal()" class="flex-shrink-0 w-[85%] snap-center bg-white rounded-xl p-4 border border-teal-100 shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] font-bold text-gray-400">1,240명 참여 중</span>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-[16px] text-gray-900 mb-4 text-center leading-snug">
+                        은퇴 후 살고 싶은 곳은?<br>
+                        <span class="text-sm font-normal text-gray-500 mt-1 block">전원주택 vs 도심 아파트</span>
+                    </h3>
+                    <div class="relative h-10 w-full rounded-lg overflow-hidden flex font-bold text-white text-xs">
+                        <div class="flex-1 bg-brand-teal flex items-center justify-center relative"><span>?? %</span></div>
+                        <div class="w-[2px] bg-white z-10"></div>
+                        <div class="flex-1 bg-gray-400 flex items-center justify-center relative"><span>?? %</span></div>
+                        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-[10px] font-black shadow-md border border-gray-100">VS</div>
+                    </div>
+                </div>
+                <div onclick="openWriteModal()" class="flex-shrink-0 w-[85%] snap-center bg-white rounded-xl p-4 border border-teal-100 shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] font-bold text-gray-400">3,500명 참여 중</span>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-[16px] text-gray-900 mb-4 text-center leading-snug">
+                        10억 받고 10년 늙기?<br>
+                        <span class="text-sm font-normal text-gray-500 mt-1 block">현금 10억 vs 젊음 유지</span>
+                    </h3>
+                    <div class="relative h-10 w-full rounded-lg overflow-hidden flex font-bold text-white text-xs">
+                        <div class="flex-1 bg-brand-teal flex items-center justify-center relative"><span>?? %</span></div>
+                        <div class="w-[2px] bg-white z-10"></div>
+                        <div class="flex-1 bg-gray-400 flex items-center justify-center relative"><span>?? %</span></div>
+                        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-[10px] font-black shadow-md border border-gray-100">VS</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      
+        <div class="sticky top-14 bg-white z-30 shadow-sm transition-all duration-300">
+            <div class="flex border-b border-gray-100" id="main-tabs">
+                <button onclick="switchTab('recommend', this)" class="tab-btn active flex-1 py-3 text-[14px] transition-colors">추천</button>
+                <button onclick="switchTab('claim', this)" class="tab-btn flex-1 py-3 text-[14px] transition-colors">보상후기</button>
+                <button onclick="switchTab('product', this)" class="tab-btn flex-1 py-3 text-[14px] transition-colors">상품리뷰</button>
+                <button onclick="switchTab('lounge', this)" class="tab-btn flex-1 py-3 text-[14px] transition-colors">라운지</button>
+            </div>
+            <div class="flex items-center gap-2 px-5 py-3 overflow-x-auto no-scrollbar bg-white" id="chip-container"></div>
+        </div>
+
+        <main class="flex-1 bg-brand-bg px-0 pb-24 space-y-3 pt-3 min-h-[600px]" id="feed-container"></main>
+
+        <div class="fixed bottom-6 w-full max-w-[480px] pointer-events-none z-20 flex justify-end pr-5">
+            <button onclick="openWriteModal()" class="pointer-events-auto flex items-center gap-2 bg-brand-blue hover:bg-[#003E85] text-white px-5 py-3.5 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95 group">
+                <i class="fa-solid fa-pen-to-square text-lg group-hover:rotate-12 transition-transform"></i>
+                <span class="font-bold text-sm">이야기 쓰기</span>
+            </button>
+        </div>
+
+        <div id="product-filter-modal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/50 transition-opacity" onclick="closeProductFilter()"></div>
+            <div class="absolute bottom-0 w-full bg-white rounded-t-2xl shadow-2xl flex flex-col max-h-[80vh] slide-up">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                    <h3 class="font-bold text-lg text-gray-900">상품 선택</h3>
+                    <button onclick="closeProductFilter()" class="text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="overflow-y-auto p-2" id="product-list-container"></div>
+                <div class="p-4 border-t border-gray-100 flex gap-3">
+                    <button onclick="resetProductFilter()" class="flex-1 py-3.5 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50">초기화</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 0. Banner Logic ---
+        const slider = document.getElementById('main-slider');
+        const indicators = document.getElementById('banner-indicators').children;
+        slider.addEventListener('scroll', () => {
+            const index = Math.round(slider.scrollLeft / slider.offsetWidth);
+            for(let i=0; i<indicators.length; i++) {
+                if(i === index) {
+                    indicators[i].classList.remove('bg-gray-300', 'w-1.5');
+                    indicators[i].classList.add('bg-brand-blue', 'w-4');
+                } else {
+                    indicators[i].classList.remove('bg-brand-blue', 'w-4');
+                    indicators[i].classList.add('bg-gray-300', 'w-1.5');
+                }
+            }
+        });
+
+        // --- 1. CONFIG & DATA ---
+        
+        const chipsConfig = {
+            'recommend': [{ id: 'all', label: '🔥 베스트' }, { id: 'cost', label: '💰 병원비_0원' }, { id: 'dental', label: '🦷 치아보험' }, { id: 'cancer', label: '🎗️ 암보험' }, { id: 'worry', label: '#고민상담' }],
+            'claim': [{ id: 'all', label: '전체' }, { id: 'dental', label: '🦷 치아' }, { id: 'cancer', label: '🎗️ 암/중대질병' }, { id: 'brain', label: '🧠 뇌/심장' }, { id: 'dementia', label: '👵 치매/간병' }],
+            'product': [{ id: 'all', label: '전체' }, { id: 'dental', label: '🦷 치아보험' }, { id: 'cancer', label: '🎗️ 암보험' }, { id: 'dementia', label: '👵 치매/간병' }],
+            'lounge': [{ id: 'all', label: '전체' }, { id: 'balance', label: '⚖️ 밸런스게임' }, { id: 'worry', label: '🗣️ 고민상담' }, { id: 'tips', label: '💡 생활지혜' }]
+        };
+
+        const productList = {
+            'dental': ['(무)THE건강한치아보험V', '(무)라이나치아사랑보험'],
+            'cancer': ['(무)라이나암보험', '(무)실버암보험'],
+            'brain': ['(무)라이나뇌심장보험'],
+            'dementia': ['(무)전에없던치매보험'],
+            'health': ['(무)골라담는건강보험']
+        };
+
+        // 🌟 REAL DATA GENERATION (Hardcoded for realism)
+        let feedData = [];
+
+        function generateRealData() {
+            // [1] Claim Reviews (보상후기) - High Realism
+            const claims = [
+                // Dental
+                { type: 'claim', cat: 'dental', tags: ['dental', 'cost'], title: '임플란트 3개 식립, 450만원 지급받은 후기', desc: '치과 공포증 때문에 미루다 큰맘 먹고 갔는데, 비용 걱정 덜어서 다행입니다.', badge: '가입 5년차', star: 5, likes: 342, prodName: '(무)THE건강한치아보험V' },
+                { type: 'claim', cat: 'dental', tags: ['dental'], title: '크라운 치료 2개, 서류제출 5분만에 끝', desc: '점심시간에 병원에서 서류 찍어 올렸는데 오후에 입금됐네요. 속도 무엇?', badge: '가입 2년차', star: 5, likes: 128, prodName: '(무)라이나치아사랑보험' },
+                { type: 'claim', cat: 'dental', tags: ['dental', 'cost'], title: '사랑니 발치하고 보존치료까지 싹 다 청구함', desc: '큰 돈은 아니지만 쏠쏠하네요. 치과는 역시 라이나.', badge: '가입 1년차', star: 4, likes: 89, prodName: '(무)스마일치아보험' },
+                { type: 'claim', cat: 'dental', tags: ['dental'], title: '브릿지 치료 보상금 수령, 부모님 해드리길 잘했네요', desc: '어머니 치아가 안 좋으셔서 걱정했는데 보험금으로 해결했습니다.', badge: '가입 4년차', star: 5, likes: 210, prodName: '(무)THE건강한치아보험V' },
+                { type: 'claim', cat: 'dental', tags: ['dental'], title: '임플란트 식립 후기 공유합니다 (청구 팁 포함)', desc: '치조골 이식술 포함해서 청구할 때 꼭 챙겨야 할 서류 알려드려요.', badge: '가입 3년차', star: 5, likes: 450, prodName: '(무)THE건강한치아보험V' },
+                // Cancer
+                { type: 'claim', cat: 'cancer', tags: ['cancer', 'cost'], title: '유방암 2기 진단금 5천만원 수령 후기', desc: '진단금 덕분에 생활비 걱정 없이 항암치료에만 집중할 수 있었습니다. 정말 감사합니다.', badge: '가입 10년차', star: 5, likes: 890, prodName: '(무)라이나암보험' },
+                { type: 'claim', cat: 'cancer', tags: ['cancer'], title: '갑상선암 수술비 청구, 생각보다 간단하네요', desc: '소액암이라 걱정했는데 약관대로 정확히 지급되었습니다.', badge: '가입 3년차', star: 4, likes: 150, prodName: '(무)실버암보험' },
+                { type: 'claim', cat: 'cancer', tags: ['cancer', 'cost'], title: '표적항암약물허가치료비 특약, 꼭 넣으세요', desc: '비급여 약제비가 너무 비싼데 이 특약 없었으면 치료 포기할 뻔했습니다.', badge: '가입 2년차', star: 5, likes: 560, prodName: '(무)집중보장암보험' },
+                { type: 'claim', cat: 'cancer', tags: ['cancer'], title: '대장 용종 제거술 보험금 청구', desc: '건강검진하다가 발견해서 제거했는데 수술비 특약에서 나왔어요.', badge: '가입 5년차', star: 5, likes: 220, prodName: '(무)라이나암보험' },
+                // Brain/Heart
+                { type: 'claim', cat: 'brain', tags: ['brain'], title: '급성심근경색 스텐트 시술, 빠른 지급 감사합니다', desc: '응급실 실려가서 정신 없었는데 보험금이라도 빨리 나와서 다행입니다.', badge: '가입 7년차', star: 5, likes: 330, prodName: '(무)라이나뇌심장보험' },
+                { type: 'claim', cat: 'brain', tags: ['brain', 'cost'], title: '뇌졸중 재활치료비, 매달 나오니 든든해요', desc: '후유장해 재활이 길어지는데 생활비 명목으로 나오니 부담이 덜합니다.', badge: '가입 4년차', star: 5, likes: 410, prodName: '(무)건강한뇌심장보장보험' },
+                // Dementia
+                { type: 'claim', cat: 'dementia', tags: ['dementia'], title: '어머니 치매 간병비 보험금 청구 후기', desc: '장기요양등급 판정 받고 바로 청구했습니다. 요양병원비에 보태고 있어요.', badge: '가입 6년차', star: 5, likes: 280, prodName: '(무)전에없던치매보험' }
+            ];
+
+            // [2] Product Reviews (상품리뷰)
+            const products = [
+                // Dental
+                { type: 'product', cat: 'dental', tags: ['dental'], title: '치아보험은 역시 라이나, 5년 갱신 후기', desc: '다른 보험사 갈아타려다 보장금액 비교해보고 다시 연장했습니다.', badge: '가입 5년차', star: 5, likes: 112, prodName: '(무)THE건강한치아보험V' },
+                { type: 'product', cat: 'dental', tags: ['dental'], title: '상담원분이 너무 친절해서 가입함', desc: '보장 내용 꼼꼼하게 설명해주셔서 믿음이 갔어요.', badge: '가입 1개월', star: 5, likes: 45, prodName: '(무)라이나치아사랑보험' },
+                { type: 'product', cat: 'dental', tags: ['dental'], title: '임플란트 개수 제한 없는 게 제일 좋음', desc: '나이 들수록 치아 걱정인데 무제한 보장이라 든든합니다.', badge: '가입 2년차', star: 4, likes: 88, prodName: '(무)THE건강한치아보험V' },
+                // Cancer
+                { type: 'product', cat: 'cancer', tags: ['cancer'], title: '암보험 리모델링, 라이나로 갈아탔습니다', desc: '기존 보험이 보장이 너무 약해서 해지하고 새로 들었어요. 보험료도 합리적.', badge: '신규가입', star: 5, likes: 205, prodName: '(무)라이나암보험' },
+                { type: 'product', cat: 'cancer', tags: ['cancer'], title: '유병자 암보험 가입 승인! 부모님 선물', desc: '혈압약 드시고 계셔서 걱정했는데 간편심사로 통과됐네요.', badge: '가입 1개월', star: 5, likes: 170, prodName: '(무)실버암보험' },
+                // Dementia
+                { type: 'product', cat: 'dementia', tags: ['dementia'], title: '치매보험, 내가 걸릴까봐 무서워서 가입', desc: '나중에 자식들한테 짐 되기 싫어서 미리 준비합니다.', badge: '가입 3년차', star: 5, likes: 300, prodName: '(무)전에없던치매보험' }
+            ];
+
+            // [3] Lounge (라운지)
+            const lounge = [
+                { type: 'lounge', cat: 'worry', tags: ['worry'], title: '축의금 10만원, 손절 각인가요?', desc: '친한 친구인데 밥값이 10만원이라며 눈치 주는데 서운하네요.', badge: '댓글 128', star: 0, likes: 540 },
+                { type: 'lounge', cat: 'worry', tags: ['worry'], title: '50대 중반, 은퇴 준비 5억이면 충분할까요?', desc: '국민연금 포함해서 계산해보고 있는데 불안합니다. 선배님들 조언 부탁드려요.', badge: '댓글 89', star: 0, likes: 320 },
+                { type: 'lounge', cat: 'worry', tags: ['worry'], title: '요양병원비 형제끼리 어떻게 분담하시나요?', desc: '큰오빠는 형편이 어렵다며 빠지려고 하는데 스트레스 받네요.', badge: '댓글 210', star: 0, likes: 450 },
+                { type: 'lounge', cat: 'tips', tags: ['tips'], title: '병원비 아끼는 꿀팁, 진료비 세부내역서 꼭 챙기세요', desc: '비급여 항목 꼼꼼히 보면 삭감 가능한 부분들이 보입니다.', badge: '스크랩 500', star: 0, likes: 890 },
+                { type: 'lounge', cat: 'tips', tags: ['tips'], title: '부모님 칠순 잔치 장소 추천 (서울)', desc: '가족끼리 조용하게 식사할 만한 한정식 집 찾고 있습니다.', badge: '댓글 45', star: 0, likes: 80 },
+                { type: 'lounge', cat: 'balance', tags: ['balance'], title: '평생 무료 치과치료 vs 평생 무료 건강검진', desc: '둘 중 하나만 선택 가능하다면?', badge: '참여 2.1k', star: 0, likes: 150 },
+                { type: 'lounge', cat: 'balance', tags: ['balance'], title: '자녀에게 10억 물려주기 vs 내가 다 쓰고 죽기', desc: '요즘 트렌드는 뭔가요?', badge: '참여 1.5k', star: 0, likes: 200 }
+            ];
+
+            feedData = [...claims, ...products, ...lounge];
+        }
+
+        // --- RENDER LOGIC ---
+
+        let currentTab = 'recommend';
+        let currentCat = 'all'; 
+        let currentProduct = null;
+
+        function init() {
+            generateRealData();
+            switchTab('recommend', document.querySelector('.tab-btn.active'));
+        }
+
+        function switchTab(tab, btn) {
+            currentTab = tab;
+            currentCat = 'all';
+            currentProduct = null;
+            
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            renderChips(tab);
+            renderFeed();
+        }
+
+        function renderChips(tab) {
+            const container = document.getElementById('chip-container');
+            const chips = chipsConfig[tab];
+            let html = '';
+
+            // Filter Icon Logic
+            if (tab === 'claim' || tab === 'product') {
+                const activeClass = currentProduct ? 'filter-btn-active' : 'bg-gray-100 border-transparent text-gray-500';
+                html += `<button onclick="openProductFilter()" class="flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all mr-1 ${activeClass}"><i class="fa-solid fa-sliders text-xs"></i></button>`;
+            }
+            
+            html += chips.map((chip, idx) => `
+                <button onclick="filterCat('${chip.id}', this)" 
+                    class="chip-btn flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[13px] font-medium text-gray-500 transition-all ${idx === 0 ? 'active' : ''}">
+                    ${chip.label}
+                </button>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function filterCat(id, btn) {
+            currentCat = id;
+            currentProduct = null;
+            
+            const siblings = btn.parentElement.querySelectorAll('.chip-btn');
+            siblings.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if(currentTab === 'product' || currentTab === 'claim') {
+                 const filterBtn = btn.parentElement.querySelector('button:first-child');
+                 if(filterBtn.innerHTML.includes('fa-sliders')) {
+                     filterBtn.classList.remove('filter-btn-active');
+                     filterBtn.classList.add('bg-gray-100', 'border-transparent', 'text-gray-500');
+                 }
+            }
+            renderFeed();
+        }
+
+        // --- PRODUCT FILTER MODAL ---
+        function openProductFilter() {
+            const modal = document.getElementById('product-filter-modal');
+            const listContainer = document.getElementById('product-list-container');
+            let listHtml = '';
+            
+            const groups = { 'dental': '치아보험', 'cancer': '암보험', 'brain': '뇌/심장', 'dementia': '치매/간병', 'health': '건강/수술' };
+
+            Object.keys(groups).forEach(key => {
+                const prods = productList[key];
+                if(prods) {
+                    listHtml += `<div class="px-4 py-2 bg-gray-50 font-bold text-xs text-gray-500 mt-2 first:mt-0">${groups[key]}</div>`;
+                    prods.forEach(p => {
+                        const isSelected = currentProduct === p ? 'text-brand-blue font-bold bg-blue-50' : 'text-gray-700 hover:bg-gray-50';
+                        listHtml += `<div onclick="selectProduct('${p}')" class="px-6 py-4 border-b border-gray-100 cursor-pointer flex justify-between items-center ${isSelected}"><span>${p}</span>${currentProduct === p ? '<i class="fa-solid fa-check"></i>' : ''}</div>`;
+                    });
+                }
+            });
+
+            listContainer.innerHTML = listHtml;
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductFilter() {
+            document.getElementById('product-filter-modal').classList.add('hidden');
+        }
+
+        function selectProduct(prodName) {
+            currentProduct = prodName;
+            currentCat = 'all';
+            closeProductFilter();
+            renderChips(currentTab);
+            renderFeed();
+        }
+
+        function resetProductFilter() {
+            currentProduct = null;
+            closeProductFilter();
+            renderChips(currentTab);
+            renderFeed();
+        }
+
+        // --- FEED RENDER ---
+        function renderFeed() {
+            const container = document.getElementById('feed-container');
+            let filtered = [];
+
+            if (currentTab === 'recommend') {
+                if (currentCat === 'all') {
+                    // Mix of popular items
+                    filtered = feedData.slice().sort((a, b) => b.likes - a.likes).slice(0, 10);
+                } else {
+                    filtered = feedData.filter(item => item.tags.includes(currentCat) || item.cat === currentCat);
+                }
+            } else {
+                filtered = feedData.filter(item => item.type === currentTab);
+                if (currentProduct) {
+                    filtered = filtered.filter(item => item.prodName === currentProduct);
+                } else if (currentCat !== 'all') {
+                    filtered = filtered.filter(item => item.cat === currentCat || item.tags.includes(currentCat));
+                }
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="py-12 text-center text-gray-400 text-sm">조건에 맞는 이야기가 없습니다.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => getCardHTML(item)).join('');
+        }
+
+        function getCardHTML(item) {
+            let headerIcon, headerText, headerColor, headerBg;
+            
+            if (item.type === 'claim') {
+                headerIcon = 'fa-file-invoice-dollar'; headerText = '보상후기'; headerColor = 'text-brand-orange'; headerBg = 'bg-orange-50';
+            } else if (item.type === 'product') {
+                headerIcon = 'fa-shield-halved'; headerText = '상품리뷰'; headerColor = 'text-brand-blue'; headerBg = 'bg-blue-50';
+            } else {
+                headerIcon = item.cat === 'balance' ? 'fa-scale-balanced' : (item.cat === 'tips' ? 'fa-lightbulb' : 'fa-comments');
+                headerText = item.cat === 'balance' ? '밸런스게임' : (item.cat === 'tips' ? '생활지혜' : '고민상담');
+                headerColor = 'text-brand-teal'; headerBg = 'bg-[#E6FFFA]';
+            }
+
+            let rightMetric = '';
+            if (item.type === 'lounge') {
+                rightMetric = `<span class="text-[11px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">${item.badge}</span>`;
+            } else {
+                rightMetric = `<div class="flex text-yellow-400 text-xs gap-0.5">${'<i class="fa-solid fa-star"></i>'.repeat(item.star)}</div>`;
+            }
+
+            let subHeader = '';
+            if (item.prodName) {
+                subHeader = `<div class="text-[11px] text-gray-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-gift"></i> ${item.prodName}</div>`;
+            }
+
+            return `
+                <article class="bg-white p-5 border-b border-gray-100 last:border-0 shadow-sm animate-[fadeIn_0.5s_ease-out]">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded ${headerBg} ${headerColor} text-[10px] font-bold">
+                            <i class="fa-solid ${headerIcon}"></i> ${headerText}
+                        </span>
+                        ${rightMetric}
+                    </div>
+                    ${subHeader}
+                    ${item.type !== 'lounge' ? `<div class="text-[11px] text-gray-400 mb-1 font-medium tracking-tight">${item.badge}</div>` : ''}
+                    <h3 class="font-bold text-gray-900 text-[16px] mb-1.5 leading-tight cursor-pointer hover:underline decoration-gray-300 underline-offset-4 line-clamp-1">${item.title}</h3>
+                    <p class="text-gray-600 text-[13px] leading-relaxed line-clamp-2 mb-3 font-normal">${item.desc}</p>
+                    <div class="flex items-center justify-between text-gray-400 text-[11px] pt-3 border-t border-gray-50">
+                        <div class="flex gap-3">
+                            <span class="flex items-center gap-1"><i class="fa-regular fa-heart"></i> ${item.likes}</span>
+                            <span class="flex items-center gap-1"><i class="fa-regular fa-comment-dots"></i> ${Math.floor(Math.random() * 30)}</span>
+                        </div>
+                        <span class="text-gray-300">${Math.floor(Math.random() * 24) + 1}시간 전</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        function openWriteModal() {
+            alert('작성 대상 선택 화면(SC-03)으로 이동합니다.');
+        }
+
+        init();
+    </script>
+</body>
+</html>

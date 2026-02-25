@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이나ON 회복 후기 작성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0055B8',
+                            orange: '#F97316',
+                            text: '#111827',
+                            bg: '#F8F9FA',
+                            red: '#DC2626'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chip-btn { border: 1px solid #E5E7EB; background-color: #FFFFFF; color: #4B5563; transition: all 0.2s; }
+        .chip-active-pos { background-color: #FFF7ED !important; border-color: #F97316 !important; color: #C2410C !important; font-weight: 700; box-shadow: 0 1px 2px rgba(249, 115, 22, 0.1); }
+        .chip-active-neg { background-color: #FEF2F2 !important; border-color: #DC2626 !important; color: #B91C1C !important; font-weight: 700; box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1); }
+
+        .input-box:focus { outline: none; }
+        .focus-pos:focus { border-color: #F97316; box-shadow: 0 0 0 1px #F97316; }
+        .focus-neg:focus { border-color: #DC2626; box-shadow: 0 0 0 1px #DC2626; }
+
+        .toggle-checkbox:checked { right: 0; border-color: #F97316; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #F97316; }
+        
+        .hosp-tag-active { background-color: #FFF7ED; border-color: #F97316; color: #C2410C; font-weight: 700; }
+
+        .modal { transition: opacity 0.2s ease-out; }
+        .modal.hidden { opacity: 0; pointer-events: none; }
+        .modal-scale { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal.hidden .modal-scale { transform: translateY(100%); }
+        .modal:not(.hidden) .modal-scale { transform: translateY(0); }
+
+        #progress-bar { transition: width 0.1s linear; }
+        .consent-btn-active { background-color: #F97316 !important; color: white !important; border-color: #F97316 !important; }
+        
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f3f4f6; }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-[480px] bg-white relative flex flex-col h-[844px] shadow-2xl overflow-hidden rounded-[30px] border border-gray-200">
+
+        <header class="h-14 px-5 flex items-center justify-between border-b border-gray-100 bg-white z-10 sticky top-0">
+            <button class="w-8 h-8 flex items-center justify-start text-gray-800" onclick="history.back()"><i class="fas fa-times text-lg"></i></button>
+            <h1 class="font-bold text-[17px] tracking-tight">회복 후기 작성</h1>
+            <div class="w-8"></div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-32 bg-brand-bg scroll-smooth" id="scroll-container">
+            
+            <section class="px-5 py-5 bg-white border-b border-gray-100 mb-2">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-brand-orange flex-shrink-0"><i class="fas fa-file-invoice-dollar text-lg"></i></div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[11px] text-gray-500 font-bold block mb-0.5 tracking-tight">보험금 지급 항목</span>
+                                <h2 class="font-bold text-gray-900 text-[15px] leading-tight mb-1">치주질환(잇몸) 치료 급여금</h2>
+                            </div>
+                            <span class="bg-blue-50 text-brand-blue text-[10px] font-bold px-2 py-1 rounded-md border border-blue-100 flex items-center shadow-sm"><i class="fas fa-bolt mr-1"></i>24시간 내 지급</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1">지급일 2024.12.10</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="px-5 py-8 bg-white mb-2 text-center fade-in">
+                <label class="block font-bold text-[18px] mb-4 text-gray-900">보험금을 지급 받으신 후 <br>기분을 알려주세요.</label>
+                <div class="flex justify-center gap-3 mb-4" id="star-container">
+                    <i onclick="setRating(1)" class="fa-solid fa-star text-4xl text-gray-200 cursor-pointer transition-transform active:scale-90 p-1"></i>
+                    <i onclick="setRating(2)" class="fa-solid fa-star text-4xl text-gray-200 cursor-pointer transition-transform active:scale-90 p-1"></i>
+                    <i onclick="setRating(3)" class="fa-solid fa-star text-4xl text-gray-200 cursor-pointer transition-transform active:scale-90 p-1"></i>
+                    <i onclick="setRating(4)" class="fa-solid fa-star text-4xl text-gray-200 cursor-pointer transition-transform active:scale-90 p-1"></i>
+                    <i onclick="setRating(5)" class="fa-solid fa-star text-4xl text-gray-200 cursor-pointer transition-transform active:scale-90 p-1"></i>
+                </div>
+                <div class="h-6"><span id="rating-text" class="text-[14px] font-bold transition-all duration-300"></span></div>
+            </section>
+
+            <div id="dynamic-content-area"></div>
+
+            <section id="sec-hospital" class="px-5 py-6 bg-white mb-2 fade-in hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-brand-orange font-bold text-lg">Plus.</span>
+                            <h3 class="font-bold text-[16px] text-gray-900">병원 후기</h3>
+                            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-200">선택</span>
+                        </div>
+                        <p class="text-[12px] text-gray-500 mt-1 font-medium">다녀오신 병원은 어떠셨나요?</p>
+                    </div>
+                    <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="hospital-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out left-0"/>
+                        <label for="hospital-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-200 ease-in-out"></label>
+                    </div>
+                </div>
+                <div id="hospital-content" class="hidden mt-5 pt-5 border-t border-gray-100 space-y-5">
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bg-teal-500 text-white text-[10px] font-bold px-3 py-1 rounded-br-lg z-10 shadow-sm"><i class="fas fa-bolt mr-1"></i> 라이나 서류제로 병원</div>
+                        <div class="flex items-start gap-3 mt-4 mb-2">
+                            <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 text-xl"><i class="fas fa-hospital-alt"></i></div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-[16px]">신촌세브란스병원</h4>
+                                <p class="text-[12px] text-gray-500 mt-0.5 font-medium">서울 서대문구 연세로 50-1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-bold text-gray-800 mb-2">진료 만족도</p>
+                        <div class="flex gap-2">
+                            <i onclick="rateHospital(1)" class="hosp-star fa-solid fa-star text-2xl text-gray-200 cursor-pointer p-1"></i>
+                            <i onclick="rateHospital(2)" class="hosp-star fa-solid fa-star text-2xl text-gray-200 cursor-pointer p-1"></i>
+                            <i onclick="rateHospital(3)" class="hosp-star fa-solid fa-star text-2xl text-gray-200 cursor-pointer p-1"></i>
+                            <i onclick="rateHospital(4)" class="hosp-star fa-solid fa-star text-2xl text-gray-200 cursor-pointer p-1"></i>
+                            <i onclick="rateHospital(5)" class="hosp-star fa-solid fa-star text-2xl text-gray-200 cursor-pointer p-1"></i>
+                        </div>
+                    </div>
+                    <input type="text" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-medium focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-400" placeholder="병원에 대한 한줄평을 남겨주세요.">
+                </div>
+            </section>
+
+            <section id="sec-consent" class="px-5 py-6 hidden">
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-4">
+                    <h4 class="text-[14px] font-bold text-gray-900 flex justify-between items-center">
+                        약관 동의
+                        <span onclick="openUnifiedModal()" class="text-[12px] text-brand-orange underline font-normal cursor-pointer">전체보기</span>
+                    </h4>
+                    
+                    <div class="space-y-4" onclick="openUnifiedModal()">
+                        <div class="flex items-center gap-3 pointer-events-none">
+                            <input type="checkbox" id="main-chk-privacy" class="w-4 h-4 text-orange-600 border-gray-300 rounded" disabled>
+                            <label class="text-[13px] text-gray-800 font-medium leading-snug">
+                                <span class="text-orange-600 font-bold">[필수]</span> 개인정보 수집 및 이용 동의
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-3 pointer-events-none">
+                            <input type="checkbox" id="main-chk-sensitive" class="w-4 h-4 text-orange-600 border-gray-300 rounded" disabled>
+                            <label class="text-[13px] text-gray-800 font-medium leading-snug">
+                                <span class="text-orange-600 font-bold">[필수]</span> 민감정보 수집 및 이용 동의
+                            </label>
+                        </div>
+                        <div class="h-px bg-gray-200"></div>
+                        
+                        <div class="pointer-events-none">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="main-chk-marketing" class="w-4 h-4 text-orange-600 border-gray-300 rounded" disabled>
+                                <label class="text-[13px] text-gray-800 font-medium leading-snug">
+                                    <span class="text-gray-400 font-bold">[선택]</span> 마케팅 활용 및 광고성 정보 수신
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-gray-400 pl-7 mt-1 leading-snug">🎁 이벤트 당첨 소식과 라이나ON 의 새로운 이벤트,콘텐츠를 앱푸시로 간편하게 받아보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="absolute bottom-0 w-full bg-white border-t border-gray-100 p-5 pb-8 z-20 shadow-[0_-5px_30px_rgba(0,0,0,0.04)]">
+            <button id="submit-btn" class="w-full py-4 rounded-xl font-bold text-[16px] transition-all bg-gray-200 text-gray-400 cursor-not-allowed" disabled onclick="submitReview()">
+                필수 항목을 모두 입력해주세요
+            </button>
+        </div>
+
+        <div id="unified-modal" class="modal hidden absolute inset-0 z-50">
+            <div class="absolute inset-0 bg-black/60 transition-opacity" onclick="closeUnifiedModal()"></div>
+            <div class="modal-scale absolute bottom-0 w-full bg-white rounded-t-[24px] h-[90%] flex flex-col transition-transform duration-300">
+                
+                <div class="relative shrink-0 bg-white rounded-t-[24px] z-10 border-b border-gray-100">
+                    <div class="h-16 flex items-center justify-between px-5">
+                        <h3 class="font-bold text-[17px] text-gray-900">약관 전체 동의</h3>
+                        <button onclick="closeUnifiedModal()" class="text-gray-400 p-2"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+                    <div class="h-1 bg-gray-100 w-full absolute bottom-0 left-0">
+                        <div id="progress-bar" class="h-full bg-brand-orange w-0"></div>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-5 pb-10 bg-gray-50 space-y-8" id="term-scroll-view" onscroll="updateProgress()">
+                    
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm" id="sec-term-privacy">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-[15px] text-gray-900">개인정보 수집 및 이용 동의 <span class="text-brand-orange text-xs ml-1">[필수]</span></h4>
+                        </div>
+                        <div class="text-[12px] text-gray-500 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 h-40 overflow-y-auto mb-4 no-scrollbar">
+                            1. 목적: 후기 서비스 운영, 경품 발송<br>2. 항목: 성명, 전화번호, 후기 내용<br>3. 보유기간: 서비스 종료 시까지
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setConsent('privacy', false)" id="btn-privacy-disagree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors">동의하지 않음</button>
+                            <button onclick="setConsent('privacy', true)" id="btn-privacy-agree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors">동의</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm" id="sec-term-sensitive">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-[15px] text-gray-900">민감정보 수집 및 이용 동의 <span class="text-brand-orange text-xs ml-1">[필수]</span></h4>
+                        </div>
+                        <div class="text-[12px] text-gray-500 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 h-40 overflow-y-auto mb-4 no-scrollbar">
+                            1. 목적: 맞춤형 후기 제공<br>2. 항목: 진단명, 치료 내용 등<br>3. 보유기간: 서비스 종료 시까지
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setConsent('sensitive', false)" id="btn-sensitive-disagree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors">동의하지 않음</button>
+                            <button onclick="setConsent('sensitive', true)" id="btn-sensitive-agree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors">동의</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm" id="sec-term-marketing">
+                        <div class="mb-3">
+                            <h4 class="font-bold text-[15px] text-gray-900">마케팅 활용 및 광고 수신 동의 <span class="text-gray-400 text-xs ml-1">[선택]</span></h4>
+                            <p class="text-[11px] text-gray-400 mt-1">🎁 당첨 소식과 경품 지급을 위해 동의가 필요해요.</p>
+                        </div>
+                        <div class="text-[12px] text-gray-500 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 h-32 overflow-y-auto mb-4 no-scrollbar">
+                            1. 목적: 혜택 정보 안내<br>2. 항목: 연락처, 앱 푸시 토큰<br>3. 보유기간: 철회 시까지
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setConsent('marketing', false)" id="btn-marketing-disagree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors consent-btn-active">동의하지 않음</button>
+                            <button onclick="setConsent('marketing', true)" id="btn-marketing-agree" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold bg-white transition-colors">동의</button>
+                        </div>
+                    </div>
+
+                    <div class="h-10"></div>
+                </div>
+
+                <div class="p-5 border-t border-gray-100 bg-white pb-8">
+                    <button id="modal-confirm-btn" onclick="confirmUnifiedModal()" class="w-full py-4 bg-gray-200 text-gray-400 font-bold rounded-xl text-[15px] cursor-not-allowed shadow-none" disabled>
+                        필수 항목을 선택해주세요
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="care-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-5">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCareModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-[340px] text-center">
+                <div class="w-12 h-12 rounded-full bg-red-50 text-brand-red flex items-center justify-center mx-auto mb-4 text-xl"><i class="fas fa-headset"></i></div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">불편을 드려 죄송합니다</h3>
+                <p class="text-[13px] text-gray-600 leading-relaxed mb-6">전문 상담사의 안내가 필요하신가요?</p>
+                <div class="flex flex-col gap-2">
+                    <button onclick="requestCallback()" class="w-full py-3 bg-brand-red text-white font-bold rounded-xl text-sm shadow-md">네, 상담 요청할게요</button>
+                    <button onclick="completeSubmission()" class="w-full py-3 bg-white text-gray-500 font-medium rounded-xl text-sm border border-gray-200">괜찮습니다</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function autoResize(textarea) {
+            textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px';
+            const counter = textarea.parentNode.querySelector('.text-cnt');
+            if (counter) counter.innerText = textarea.value.length;
+            checkAllInputs();
+        }
+
+        const templates = {
+            positive: `
+                <section class="px-5 py-6 bg-white mb-2 fade-in" id="step-1">
+                    <label class="block font-bold text-[15px] mb-3"><span class="text-brand-orange mr-1">Step 1.</span> 이번 보험금 지급이<br>어떤 도움이 되었나요? <span class="text-gray-400 text-[11px] font-normal ml-1"><br>(여러개 선택할 수 있어요)</span></label>
+                    <div class="flex flex-wrap gap-2 chip-group" id="chip-group-1">
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">💸 치료비 부담 해결</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">💊 약값/검사비 활용</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">🛒 생활비 보탬</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">🥣 간병/요양비 사용</button>
+                    </div>
+                </section>
+                <section class="px-5 py-6 bg-white mb-2 fade-in hidden" id="step-2">
+                    <label class="block font-bold text-[15px] mb-3"><span class="text-brand-orange mr-1">Step 2.</span> 현재 치료 상황은<br>어떠신가요? <span class="text-gray-400 text-[11px] font-normal ml-1"><br>(여러개 선택할 수 있어요)</span></label>
+                    <div class="flex flex-wrap gap-2 chip-group" id="chip-group-2">
+                        <button onclick="toggleChip(this, 2)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">🏥 수술/시술 완료</button>
+                        <button onclick="toggleChip(this, 2)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">💉 꾸준한 통원 치료 중</button>
+                        <button onclick="toggleChip(this, 2)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">🔍 조기 발견하여 관리</button>
+                        <button onclick="toggleChip(this, 2)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium">💪 건강하게 회복 완료</button>
+                    </div>
+                </section>
+                <section class="px-5 py-6 bg-white mb-2 fade-in hidden" id="step-3">
+                    <h3 class="font-bold text-[16px] mb-1"><span class="text-brand-orange mr-1">Step 3.</span> 이야기를 좀더 자세히 들려주세요</h3>
+                    <p class="text-[12px] text-gray-400 mb-4">최소 10자 이상 작성해 주세요.</p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
+                        <h4 class="text-[12px] font-bold text-gray-700 mb-2 flex items-center gap-1.5"><i class="fas fa-exclamation-circle text-orange-400"></i> 작성 시 유의사항</h4>
+                        <ul class="text-[11px] text-gray-500 space-y-1.5 list-disc list-inside leading-snug">
+                            <li>개인정보(주민번호, 전화번호 등)는 절대 입력하지 마세요.</li>
+                            <li>의료법상 특정 병원의 홍보나 유인 알선으로 오인될 수 있는 내용은 임의 수정될 수 있습니다.</li>
+                            <li>작성된 내용은 라이나생명의 서비스 개선 및 홍보 목적으로 활용될 수 있습니다.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-6 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center text-[10px] font-bold">1</div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">어디가 아프셨나요?</label>
+                        <textarea id="text-1" class="input-box focus-pos w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" 
+                        placeholder="예) 빙판길에서 넘어져 손목을 다쳤어요. / 건강검진 중 용종이 발견되었어요." 
+                        maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                    <div class="mb-6 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center text-[10px] font-bold">2</div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">치료 과정과 현재 상태는요?</label>
+                        <textarea id="text-2" class="input-box focus-pos w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" 
+                        placeholder="예) 수술 후 일주일 정도 입원 치료를 받았고, 지금은 퇴원해서 많이 회복되었습니다." 
+                        maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                    <div class="mb-6 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center text-[10px] font-bold">3</div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">보험금 지급이 도움이 되셨나요?</label>
+                        <textarea id="text-3" class="input-box focus-pos w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" 
+                        placeholder="예) 급하게 목돈이 필요했는데, 청구 다음날 바로 입금되어 병원비 결제에 큰 도움이 됐어요." 
+                        maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                    <div class="mb-2 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-teal-100 text-brand-blue flex items-center justify-center text-[10px] font-bold"><i class="fas fa-heart"></i></div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">라이나 가족들에게 한마디!</label>
+                        <textarea id="text-4" class="input-box focus-pos w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" 
+                        placeholder="예) 아프면 참지 말고 바로 병원에 가세요! 보험이 있으니 정말 든든하네요." 
+                        maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-start gap-3 bg-orange-50 p-3 rounded-xl border border-orange-100">
+                        <input type="checkbox" id="chk-event-auto" class="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" checked onchange="checkAllInputs()">
+                        <label for="chk-event-auto" class="text-[13px] text-gray-800 font-bold leading-snug">
+                            라이나ON BEST 후기 이벤트 참가
+                            <span class="block text-[11px] text-gray-500 font-normal mt-0.5">체크 시 작성하신 후기로 매월 진행하는 BEST 후기 선발 이벤트에 참여하게 됩니다.<p> 배달의민족 쿠폰 / 커피쿠폰을 이벤트 리워드로 드려요.<p></span>
+                            <button onclick="alert('이벤트 상세 페이지로 이동')" class="text-[11px] text-brand-blue underline mt-1 font-medium">우수 후기 혜택 자세히 보기 ></button>
+                        </label>
+                    </div>
+                </section>
+            `,
+            negative: `
+                <section class="px-5 py-6 bg-white mb-2 fade-in" id="step-1">
+                    <label class="block font-bold text-[15px] mb-3"><span class="text-brand-red mr-1">Step 1.</span> 어떤 점이 불편하셨나요?</label>
+                    <div class="flex flex-wrap gap-2 chip-group" id="chip-group-1">
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium hover:border-red-300">🐢 지급이 너무 늦어요</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium hover:border-red-300">📉 금액이 적어요</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium hover:border-red-300">📄 서류 복잡</button>
+                        <button onclick="toggleChip(this)" class="chip-btn px-3 py-2 rounded-lg text-[13px] font-medium hover:border-red-300">🎧 연결 안됨</button>
+                    </div>
+                </section>
+                <section class="px-5 py-6 bg-white mb-2 fade-in hidden" id="step-3">
+                    <h3 class="font-bold text-[16px] mb-1"><span class="text-brand-red mr-1">Step 2.</span> 상세 내용을 남겨주세요</h3>
+                    <p class="text-[12px] text-gray-400 mb-4">최소 10자 이상 작성해 주세요.</p>
+                    <div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6">
+                        <h4 class="text-[12px] font-bold text-red-700 mb-2"><i class="fas fa-exclamation-triangle"></i> 작성 전 확인</h4>
+                        <ul class="text-[11px] text-gray-600 list-disc list-inside"><li>비방/욕설 금지</li><li>허위 사실 금지</li></ul>
+                    </div>
+                    <div class="mb-6 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-red-100 text-brand-red flex items-center justify-center text-[10px] font-bold">1</div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">구체적으로 어떤 상황이었나요?</label>
+                        <textarea id="text-1" class="input-box focus-neg w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" placeholder="내용을 입력해주세요." maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                    <div class="mb-2 relative pl-8">
+                        <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-red-100 text-brand-red flex items-center justify-center text-[10px] font-bold">2</div>
+                        <label class="block text-[13px] font-bold text-gray-800 mb-2 pt-1">라이나에게 바라는 점?</label>
+                        <textarea id="text-2" class="input-box focus-neg w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-xl p-3 text-[14px] resize-none overflow-hidden placeholder-gray-400 leading-relaxed" placeholder="내용을 입력해주세요." maxlength="1000" oninput="autoResize(this)"></textarea>
+                        <div class="text-right text-[10px] text-gray-400 mt-1"><span class="text-cnt">0</span>/1000자 (최소 10자)</div>
+                    </div>
+                </section>
+            `
+        };
+
+        let currentMode = null;
+        let currentRating = 0;
+        
+        // Consent State Object (3 items now)
+        const consentState = {
+            privacy: null, // null = Not selected yet
+            sensitive: null,
+            marketing: false // Default Disagree
+        };
+
+        function setRating(score) {
+            currentRating = score;
+            const newMode = score <= 2 ? 'negative' : 'positive';
+            const stars = document.getElementById('star-container').children;
+            const textLabel = document.getElementById('rating-text');
+            const texts = ["", "많이 아쉬웠어요 😥", "조금 아쉬워요", "보통이에요 🙂", "좋았어요 😊", "최고에요! 👍"];
+
+            for (let i = 0; i < 5; i++) {
+                stars[i].classList.toggle('text-yellow-400', i < score);
+                stars[i].classList.toggle('text-gray-200', i >= score);
+            }
+            textLabel.innerText = texts[score];
+            textLabel.className = `text-[14px] font-bold transition-all duration-300 ${newMode === 'negative' ? 'text-brand-red' : 'text-brand-orange'}`;
+
+            if (currentMode !== newMode) {
+                currentMode = newMode;
+                document.getElementById('dynamic-content-area').innerHTML = templates[newMode];
+                
+                // Reset Sections
+                document.getElementById('sec-hospital').classList.add('hidden');
+                document.getElementById('sec-consent').classList.add('hidden');
+                
+                // Reset Submit Button
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = true;
+                btn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-brand-orange', 'bg-brand-red', 'text-white', 'shadow-lg');
+                btn.innerText = "필수 항목을 모두 입력해주세요";
+            }
+        }
+
+        function toggleChip(btn, groupNum = 1) {
+            const isNegative = currentMode === 'negative';
+            const activeClass = isNegative ? 'chip-active-neg' : 'chip-active-pos';
+            
+            btn.classList.toggle(activeClass);
+            btn.classList.toggle('border-transparent');
+
+            if (isNegative) {
+                const step3 = document.getElementById('step-3');
+                const consent = document.getElementById('sec-consent');
+                
+                if (step3.classList.contains('hidden')) {
+                    step3.classList.remove('hidden');
+                    consent.classList.remove('hidden');
+                    setTimeout(() => { step3.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+                }
+            } else {
+                if (groupNum === 1) {
+                    const step2 = document.getElementById('step-2');
+                    if (step2 && step2.classList.contains('hidden')) {
+                        step2.classList.remove('hidden');
+                        setTimeout(() => { step2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                    }
+                } else {
+                    const step3 = document.getElementById('step-3');
+                    const hospital = document.getElementById('sec-hospital');
+                    const consent = document.getElementById('sec-consent');
+                    
+                    if (step3 && step3.classList.contains('hidden')) {
+                        step3.classList.remove('hidden');
+                        hospital.classList.remove('hidden');
+                        consent.classList.remove('hidden');
+                        setTimeout(() => { step3.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+                    }
+                }
+            }
+            checkAllInputs();
+        }
+
+        document.addEventListener('change', function(e) {
+            if(e.target && e.target.id == 'hospital-toggle'){
+                const content = document.getElementById('hospital-content');
+                if(e.target.checked) content.classList.remove('hidden');
+                else content.classList.add('hidden');
+            }
+        });
+
+        function rateHospital(value) {
+            const stars = document.querySelectorAll('.hosp-star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < value);
+                star.classList.toggle('text-gray-200', index >= value);
+            });
+        }
+
+        // --- 3. Unified Modal Logic ---
+        function openUnifiedModal() {
+            const modal = document.getElementById('unified-modal');
+            modal.classList.remove('hidden');
+            renderModalButtons();
+            updateProgress();
+            checkModalCompletion();
+        }
+
+        function closeUnifiedModal() {
+            document.getElementById('unified-modal').classList.add('hidden');
+            syncMainCheckboxes();
+            checkAllInputs();
+        }
+
+        function updateProgress() {
+            const container = document.getElementById('term-scroll-view');
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight - container.clientHeight;
+            const percent = (scrollTop / scrollHeight) * 100;
+            document.getElementById('progress-bar').style.width = Math.min(percent, 100) + '%';
+        }
+
+        function setConsent(type, isAgree) {
+            consentState[type] = isAgree;
+            renderModalButtons();
+            checkModalCompletion();
+        }
+
+        function renderModalButtons() {
+            const types = ['privacy', 'sensitive', 'marketing'];
+            types.forEach(type => {
+                const agreeBtn = document.getElementById(`btn-${type}-agree`);
+                const disagreeBtn = document.getElementById(`btn-${type}-disagree`);
+                const val = consentState[type];
+
+                agreeBtn.classList.remove('consent-btn-active');
+                disagreeBtn.classList.remove('consent-btn-active');
+
+                if (val === true) agreeBtn.classList.add('consent-btn-active');
+                else if (val === false) disagreeBtn.classList.add('consent-btn-active');
+            });
+        }
+
+        function checkModalCompletion() {
+            const btn = document.getElementById('modal-confirm-btn');
+            const isPrivacyDone = consentState.privacy !== null;
+            const isSensitiveDone = consentState.sensitive !== null;
+            
+            if (isPrivacyDone && isSensitiveDone) {
+                btn.disabled = false;
+                btn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.add('bg-brand-orange', 'text-white', 'shadow-lg');
+                btn.innerText = "확인 및 닫기";
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-brand-orange', 'text-white', 'shadow-lg');
+                btn.innerText = "필수 항목을 선택해주세요";
+            }
+        }
+
+        function syncMainCheckboxes() {
+            document.getElementById('main-chk-privacy').checked = consentState.privacy === true;
+            document.getElementById('main-chk-sensitive').checked = consentState.sensitive === true;
+            document.getElementById('main-chk-marketing').checked = consentState.marketing === true;
+        }
+
+        // --- 4. Main Validation ---
+        function checkAllInputs() {
+            const btn = document.getElementById('submit-btn');
+            
+            // Check Required Consents from STATE
+            const isConsentValid = consentState.privacy && consentState.sensitive;
+
+            let isValid = false;
+
+            const validateField = (id) => {
+                const el = document.getElementById(id);
+                if (!el) return false; 
+                
+                const len = el.value.trim().length;
+                if(len > 0 && len < 10) {
+                    el.classList.add('border-red-300', 'bg-red-50');
+                    el.classList.remove('border-gray-200', 'bg-gray-50');
+                } else {
+                    el.classList.remove('border-red-300', 'bg-red-50');
+                    el.classList.add('border-gray-200', 'bg-gray-50');
+                }
+                return len >= 10;
+            };
+
+            if (currentMode === 'positive') {
+                const chip1 = document.getElementById('chip-group-1')?.querySelectorAll('.chip-active-pos').length > 0;
+                const chip2 = document.getElementById('chip-group-2')?.querySelectorAll('.chip-active-pos').length > 0;
+                const t1 = validateField('text-1');
+                const t2 = validateField('text-2');
+                const t3 = validateField('text-3');
+                const t4 = validateField('text-4');
+                
+                isValid = chip1 && chip2 && t1 && t2 && t3 && t4 && isConsentValid;
+                
+                if(isValid) {
+                    btn.classList.add('bg-brand-orange');
+                    btn.classList.remove('bg-brand-red');
+                }
+
+            } else if (currentMode === 'negative') {
+                const chip1 = document.getElementById('chip-group-1')?.querySelectorAll('.chip-active-neg').length > 0;
+                const t1 = validateField('text-1');
+                const t2 = validateField('text-2');
+                
+                isValid = chip1 && t1 && t2 && isConsentValid;
+                
+                if(isValid) {
+                    btn.classList.add('bg-brand-red');
+                    btn.classList.remove('bg-brand-orange');
+                }
+            }
+
+            if (isValid) {
+                btn.disabled = false;
+                btn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.add('text-white', 'shadow-lg');
+                btn.innerText = currentMode === 'negative' ? "의견 보내기" : "후기 등록하기";
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                btn.classList.remove('bg-brand-orange', 'bg-brand-red', 'text-white', 'shadow-lg');
+                btn.innerText = "필수 항목을 모두 입력해주세요";
+            }
+        }
+
+        // --- 5. Submission ---
+        function submitReview() {
+            if (currentMode === 'negative') {
+                document.getElementById('care-modal').classList.remove('hidden');
+            } else {
+                alert("소중한 후기가 성공적으로 등록되었습니다!\n참여해 주셔서 감사합니다.");
+            }
+        }
+        function closeCareModal() { document.getElementById('care-modal').classList.add('hidden'); }
+        function requestCallback() { closeCareModal(); alert("상담 예약 완료"); }
+        function completeSubmission() { closeCareModal(); alert("등록 완료"); }
+
+    </script>
+</body>
+</html>

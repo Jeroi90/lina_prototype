@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이나 리얼 스토리 - 작성 대상 선택</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0055B8',
+                            orange: '#F97316',
+                            teal: '#00B8A9',
+                            light: '#F5F9FF',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-enter {
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 flex justify-center min-h-screen font-sans">
+
+    <div class="w-full max-w-[480px] bg-gray-100 relative overflow-hidden flex flex-col h-screen">
+        <div class="flex-1 p-5 opacity-30 blur-[2px] pointer-events-none bg-white">
+            <header class="flex justify-between items-center py-4">
+                <h1 class="text-xl font-bold text-gray-900">LINA<span class="text-brand-blue">ON</span></h1>
+            </header>
+            <div class="space-y-4">
+                <div class="h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+                <div class="h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+            </div>
+        </div>
+
+        <div class="absolute inset-0 z-50 flex flex-col justify-end bg-black/40 backdrop-blur-sm">
+            
+            <div class="w-full h-[92%] bg-white rounded-t-[32px] shadow-2xl flex flex-col modal-enter overflow-hidden">
+                
+                <div class="flex justify-between items-start px-6 pt-7 pb-4 bg-white sticky top-0 z-10 border-b border-gray-50">
+                    <div>
+                        <h2 class="text-[22px] font-bold text-gray-900 leading-tight">어떤 이야기를<br>들려주시겠어요?</h2>
+                        <p class="text-[13px] text-gray-500 mt-2">고객님의 소중한 경험이 누군가에게 힘이 됩니다.</p>
+                    </div>
+                    <button class="w-10 h-10 -mr-2 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors bg-gray-50 rounded-full">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8 bg-gray-50/50 no-scrollbar pb-20">
+
+                    <section>
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="font-bold text-gray-800 text-[15px]">💬 라운지에서 소통하기</h3>
+                            <span class="bg-brand-teal/10 text-brand-teal text-[10px] font-bold px-2 py-0.5 rounded-full">New</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <button onclick="goEditor('balance')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-teal-100 flex items-center justify-between hover:border-brand-teal transition-all group active:scale-[0.98]">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-brand-teal text-xl flex-shrink-0">
+                                        <i class="fa-solid fa-scale-balanced"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h4 class="font-bold text-gray-900 text-[15px]">⚖️ 밸런스 게임</h4>
+                                        <p class="text-[12px] text-gray-400 mt-0.5">돈 vs 젊음? 재미있는 선택의 시간</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-300 text-xs group-hover:text-brand-teal"></i>
+                            </button>
+
+                            <button onclick="goEditor('worry')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-orange-100 flex items-center justify-between hover:border-brand-orange transition-all group active:scale-[0.98]">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-brand-orange text-xl flex-shrink-0">
+                                        <i class="fa-solid fa-comments"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h4 class="font-bold text-gray-900 text-[15px]">🗣️ 고민 상담소</h4>
+                                        <p class="text-[12px] text-gray-400 mt-0.5">"저만 이런가요?" 익명으로 털어놓기</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-300 text-xs group-hover:text-brand-orange"></i>
+                            </button>
+
+                            <button onclick="goEditor('wisdom')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-indigo-100 flex items-center justify-between hover:border-indigo-500 transition-all group active:scale-[0.98]">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 text-xl flex-shrink-0">
+                                        <i class="fa-solid fa-lightbulb"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h4 class="font-bold text-gray-900 text-[15px]">💡 생활의 지혜</h4>
+                                        <p class="text-[12px] text-gray-400 mt-0.5">나만 알기 아까운 꿀팁 공유</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-300 text-xs group-hover:text-indigo-500"></i>
+                            </button>
+                        </div>
+                    </section>
+                    
+                    <div class="h-px bg-gray-200/70"></div>
+
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1 h-4 bg-brand-blue rounded-full"></span>
+                                <h3 class="font-bold text-gray-800 text-[15px]">나의 보험 계약 <span class="text-brand-blue text-sm font-normal ml-0.5">2건</span></h3>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm active:scale-[0.98] transition-all cursor-pointer group hover:border-blue-400">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="bg-blue-50 text-brand-blue text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">유지중</span>
+                                </div>
+                                <h4 class="font-bold text-gray-900 text-[16px] mb-1 leading-snug">(무)THE건강한치아보험V</h4>
+                                <p class="text-[11px] text-gray-400 mb-4">계약일: 2023.05.12 (가입 2년차)</p>
+                                <button onclick="goEditor('product')" class="w-full py-2.5 rounded-lg bg-brand-light text-brand-blue font-bold text-[13px] group-hover:bg-brand-blue group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-pen text-xs"></i> 가입 후기 쓰기
+                                </button>
+                            </div>
+
+                            <div class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm active:scale-[0.98] transition-all cursor-pointer group hover:border-blue-400">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="bg-blue-50 text-brand-blue text-[10px] font-bold px-2 py-0.5 rounded border border-blue-100">유지중</span>
+                                </div>
+                                <h4 class="font-bold text-gray-900 text-[16px] mb-1 leading-snug">(무)골라담는간편건강보험(갱신형)</h4>
+                                <p class="text-[11px] text-gray-400 mb-4">계약일: 2021.11.20 (가입 4년차)</p>
+                                <button onclick="goEditor('product')" class="w-full py-2.5 rounded-lg bg-brand-light text-brand-blue font-bold text-[13px] group-hover:bg-brand-blue group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-pen text-xs"></i> 가입 후기 쓰기
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1 h-4 bg-orange-500 rounded-full"></span>
+                                <h3 class="font-bold text-gray-800 text-[15px]">지급 받은 내역 <span class="text-orange-500 text-sm font-normal ml-0.5">2건</span></h3>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="bg-white border border-orange-100 rounded-2xl p-5 shadow-sm active:scale-[0.98] transition-all cursor-pointer group hover:border-orange-400 relative overflow-hidden">
+                                <div class="absolute right-0 top-0 bg-orange-100 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-bl-lg">후기 미작성</div>
+
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded border border-orange-100">지급 완료 💰</span>
+                                </div>
+                                <h4 class="font-bold text-gray-900 text-[16px] mb-1 leading-snug">치주질환(잇몸) 치료 급여금</h4>
+                                <p class="text-[11px] text-gray-400 mb-4">지급일: 2024.12.10 (300,000원)</p>
+                                <button onclick="goEditor('claim')" class="w-full py-2.5 rounded-lg bg-orange-50 text-orange-600 font-bold text-[13px] group-hover:bg-orange-500 group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-file-invoice-dollar text-xs"></i> 보상 후기 쓰기
+                                </button>
+                            </div>
+
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 shadow-sm transition-all cursor-pointer group hover:border-gray-400">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">작성 완료 ✅</span>
+                                </div>
+                                <h4 class="font-bold text-gray-700 text-[16px] mb-1 leading-snug">재해골절 진단금</h4>
+                                <p class="text-[11px] text-gray-400 mb-4">지급일: 2024.01.15 (500,000원)</p>
+                                
+                                <button class="w-full py-2.5 rounded-lg border border-gray-300 bg-white text-gray-600 font-bold text-[13px] group-hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-eye text-xs"></i> 내가 쓴 글 보기
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="h-6"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goEditor(type) {
+            let msg = '';
+            if(type === 'balance') msg = '⚖️ 밸런스 게임 에디터로 이동합니다.';
+            else if(type === 'worry') msg = '🗣️ 고민 상담소 에디터로 이동합니다.';
+            else if(type === 'wisdom') msg = '💡 생활의 지혜 에디터로 이동합니다.';
+            else if(type === 'product') msg = '🎁 상품 리뷰 에디터(SC-04)로 이동합니다.';
+            else if(type === 'claim') msg = '🏥 보상 후기 에디터(SC-05)로 이동합니다.';
+            
+            alert(msg);
+        }
+    </script>
+</body>
+</html>
